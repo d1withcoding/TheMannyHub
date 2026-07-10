@@ -17,7 +17,12 @@ public class Customer {
 
 
     // Customer Constructor
-    public Customer(int id, String name, String phone, double waist, double inseam, double hip, double thigh, double frontRise, double backRise, String fitPreferences, Status status){
+    public Customer(int id, String name,
+                    String phone, double waist,
+                    double inseam, double hip,
+                    double thigh, double frontRise,
+                    double backRise,
+                    String fitPreferences, Status status){
         this.id = id;
         this.name = name;
         this.phone = phone;
