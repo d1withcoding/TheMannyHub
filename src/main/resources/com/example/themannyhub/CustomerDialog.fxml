@@ -1,0 +1,348 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<!--
+CustomerDialog.fxml - Form for adding/editing a customer
+
+This dialog is opened by MainWindowController when user clicks "Add" or "Edit"
+It's a modal dialog (blocks main window interaction until closed)
+
+Structure: VBox containing:
+1. Title (label)
+2. Form (GridPane with 2 columns: Label | Input field)
+3. Error labels (shown in red when validation fails)
+4. Buttons: Save, Cancel
+
+All elements have fx:id so controller can access them
+-->
+
+<VBox
+        xmlns="http://javafx.com/javafx"
+        xmlns:fx="http://javafx.com/fxml"
+        fx:controller="com.example.themannyhub.controllers.CustomerDialogController"
+        spacing="15"
+        style="-fx-padding: 20; -fx-font-family: 'Segoe UI'; -fx-font-size: 11;">
+
+    <!-- ===================================================================
+         TITLE
+         =================================================================== -->
+
+    <Label
+            fx:id="dialogTitle"
+            text="Add Customer"
+            style="-fx-font-size: 16; -fx-font-weight: bold; -fx-text-fill: #333;">
+        <!--
+        fx:id="dialogTitle" - Controller changes this to "Add Customer" or "Edit Customer"
+        Title updates based on whether adding or editing
+        -->
+    </Label>
+
+    <!-- ===================================================================
+         FORM (GridPane: 2 columns, Label and Input)
+         =================================================================== -->
+
+    <GridPane hgap="10" vgap="12">
+        <!--
+        GridPane layout: 2 columns (Label | Input), multiple rows
+        hgap="10" - Horizontal spacing between columns
+        vgap="12" - Vertical spacing between rows
+        Each row has: Label on left, TextField/ComboBox on right
+        Followed by error label (red text, initially hidden)
+        -->
+
+        <!-- ==================== ROW 1: Name ==================== -->
+        <Label text="Name:" GridPane.columnIndex="0" GridPane.rowIndex="0"
+               style="-fx-font-weight: bold;"/>
+        <TextField
+                fx:id="nameField"
+                promptText="Customer full name"
+                prefWidth="300"
+                GridPane.columnIndex="1"
+                GridPane.rowIndex="0"
+                onKeyReleased="#onNameFieldChanged">
+            <!--
+            fx:id="nameField" - Controller reads value with getText()
+            promptText - Placeholder shown when empty
+            onKeyReleased="#onNameFieldChanged" - Real-time validation as user types (optional)
+            prefWidth="300" - Input field width
+            GridPane.columnIndex/rowIndex - Position in grid
+            -->
+        </TextField>
+        <!-- Error label for name (hidden until validation fails) -->
+        <Label
+                fx:id="nameErrorLabel"
+                text=""
+                textFill="#dc3535"
+                style="-fx-font-size: 10;"
+                GridPane.columnIndex="1"
+                GridPane.rowIndex="1"
+                visible="false"
+                managed="false">
+            <!--
+            fx:id="nameErrorLabel" - Controller updates this with error message
+            textFill="#dc3535" - Red color for errors
+            visible="false" - Hidden by default
+            managed="false" - Don't reserve space when hidden (layout cleaner)
+            -->
+        </Label>
+
+        <!-- ==================== ROW 3: Phone ==================== -->
+        <Label text="Phone:" GridPane.columnIndex="0" GridPane.rowIndex="3"
+               style="-fx-font-weight: bold;"/>
+        <TextField
+                fx:id="phoneField"
+                promptText="10-digit phone number"
+                prefWidth="300"
+                GridPane.columnIndex="1"
+                GridPane.rowIndex="3"
+                onKeyReleased="#onPhoneFieldChanged">
+        </TextField>
+        <!-- Error label for phone -->
+        <Label
+                fx:id="phoneErrorLabel"
+                text=""
+                textFill="#dc3535"
+                style="-fx-font-size: 10;"
+                GridPane.columnIndex="1"
+                GridPane.rowIndex="4"
+                visible="false"
+                managed="false">
+        </Label>
+
+        <!-- ==================== ROW 6: Waist ==================== -->
+        <Label text="Waist (inches):" GridPane.columnIndex="0" GridPane.rowIndex="6"
+               style="-fx-font-weight: bold;"/>
+        <TextField
+                fx:id="waistField"
+                promptText="24-50"
+                prefWidth="300"
+                GridPane.columnIndex="1"
+                GridPane.rowIndex="6"
+                onKeyReleased="#onWaistFieldChanged">
+            <!--
+            Numeric field - Controller validates that it contains only numbers and decimal point
+            -->
+        </TextField>
+        <Label
+                fx:id="waistErrorLabel"
+                text=""
+                textFill="#dc3535"
+                style="-fx-font-size: 10;"
+                GridPane.columnIndex="1"
+                GridPane.rowIndex="7"
+                visible="false"
+                managed="false">
+        </Label>
+
+        <!-- ==================== ROW 9: Inseam ==================== -->
+        <Label text="Inseam (inches):" GridPane.columnIndex="0" GridPane.rowIndex="9"
+               style="-fx-font-weight: bold;"/>
+        <TextField
+                fx:id="inseamField"
+                promptText="26-38"
+                prefWidth="300"
+                GridPane.columnIndex="1"
+                GridPane.rowIndex="9"
+                onKeyReleased="#onInseamFieldChanged">
+        </TextField>
+        <Label
+                fx:id="inseamErrorLabel"
+                text=""
+                textFill="#dc3535"
+                style="-fx-font-size: 10;"
+                GridPane.columnIndex="1"
+                GridPane.rowIndex="10"
+                visible="false"
+                managed="false">
+        </Label>
+
+        <!-- ==================== ROW 12: Hip ==================== -->
+        <Label text="Hip (inches):" GridPane.columnIndex="0" GridPane.rowIndex="12"
+               style="-fx-font-weight: bold;"/>
+        <TextField
+                fx:id="hipField"
+                promptText="30-60"
+                prefWidth="300"
+                GridPane.columnIndex="1"
+                GridPane.rowIndex="12"
+                onKeyReleased="#onHipFieldChanged">
+        </TextField>
+        <Label
+                fx:id="hipErrorLabel"
+                text=""
+                textFill="#dc3535"
+                style="-fx-font-size: 10;"
+                GridPane.columnIndex="1"
+                GridPane.rowIndex="13"
+                visible="false"
+                managed="false">
+        </Label>
+
+        <!-- ==================== ROW 15: Thigh ==================== -->
+        <Label text="Thigh (inches):" GridPane.columnIndex="0" GridPane.rowIndex="15"
+               style="-fx-font-weight: bold;"/>
+        <TextField
+                fx:id="thighField"
+                promptText="18-30"
+                prefWidth="300"
+                GridPane.columnIndex="1"
+                GridPane.rowIndex="15"
+                onKeyReleased="#onThighFieldChanged">
+        </TextField>
+        <Label
+                fx:id="thighErrorLabel"
+                text=""
+                textFill="#dc3535"
+                style="-fx-font-size: 10;"
+                GridPane.columnIndex="1"
+                GridPane.rowIndex="16"
+                visible="false"
+                managed="false">
+        </Label>
+
+        <!-- ==================== ROW 18: Front Rise ==================== -->
+        <Label text="Front Rise (inches):" GridPane.columnIndex="0" GridPane.rowIndex="18"
+               style="-fx-font-weight: bold;"/>
+        <TextField
+                fx:id="frontRiseField"
+                promptText="8-14"
+                prefWidth="300"
+                GridPane.columnIndex="1"
+                GridPane.rowIndex="18"
+                onKeyReleased="#onFrontRiseFieldChanged">
+        </TextField>
+        <Label
+                fx:id="frontRiseErrorLabel"
+                text=""
+                textFill="#dc3535"
+                style="-fx-font-size: 10;"
+                GridPane.columnIndex="1"
+                GridPane.rowIndex="19"
+                visible="false"
+                managed="false">
+        </Label>
+
+        <!-- ==================== ROW 21: Back Rise ==================== -->
+        <Label text="Back Rise (inches):" GridPane.columnIndex="0" GridPane.rowIndex="21"
+               style="-fx-font-weight: bold;"/>
+        <TextField
+                fx:id="backRiseField"
+                promptText="8-14"
+                prefWidth="300"
+                GridPane.columnIndex="1"
+                GridPane.rowIndex="21"
+                onKeyReleased="#onBackRiseFieldChanged">
+        </TextField>
+        <Label
+                fx:id="backRiseErrorLabel"
+                text=""
+                textFill="#dc3535"
+                style="-fx-font-size: 10;"
+                GridPane.columnIndex="1"
+                GridPane.rowIndex="22"
+                visible="false"
+                managed="false">
+        </Label>
+
+        <!-- ==================== ROW 24: Fit Preferences ==================== -->
+        <Label text="Fit Preferences:" GridPane.columnIndex="0" GridPane.rowIndex="24"
+               style="-fx-font-weight: bold; -fx-alignment: TOP_LEFT;"/>
+        <TextArea
+                fx:id="fitPreferencesArea"
+                promptText="e.g., Prefers slim fit, high waist preference"
+                prefRowCount="3"
+                prefWidth="300"
+                wrapText="true"
+                GridPane.columnIndex="1"
+                GridPane.rowIndex="24"
+                onKeyReleased="#onFitPreferencesFieldChanged">
+            <!--
+            TextArea allows multi-line input (unlike TextField)
+            prefRowCount="3" - Show 3 rows by default
+            wrapText="true" - Text wraps to next line automatically
+            -->
+        </TextArea>
+        <Label
+                fx:id="fitPreferencesErrorLabel"
+                text=""
+                textFill="#dc3535"
+                style="-fx-font-size: 10;"
+                GridPane.columnIndex="1"
+                GridPane.rowIndex="25"
+                visible="false"
+                managed="false">
+        </Label>
+
+        <!-- ==================== ROW 27: Status ==================== -->
+        <Label text="Status:" GridPane.columnIndex="0" GridPane.rowIndex="27"
+               style="-fx-font-weight: bold;"/>
+        <ComboBox
+                fx:id="statusComboBox"
+                prefWidth="300"
+                GridPane.columnIndex="1"
+                GridPane.rowIndex="27"
+                onAction="#onStatusSelectionChanged">
+            <!--
+            fx:id="statusComboBox" - Controller populates with Status.ACTIVE, Status.INACTIVE
+            Controller also reads selection with: statusComboBox.getValue()
+            -->
+        </ComboBox>
+        <Label
+                fx:id="statusErrorLabel"
+                text=""
+                textFill="#dc3535"
+                style="-fx-font-size: 10;"
+                GridPane.columnIndex="1"
+                GridPane.rowIndex="28"
+                visible="false"
+                managed="false">
+        </Label>
+    </GridPane>
+
+    <!-- ===================================================================
+         BUTTONS: Save and Cancel
+         =================================================================== -->
+
+    <HBox spacing="10" alignment="CENTER_RIGHT" style="-fx-padding: 10 0 0 0; -fx-border-color: #ddd; -fx-border-width: 1 0 0 0;">
+        <!--
+        HBox for button layout (horizontal alignment)
+        alignment="CENTER_RIGHT" - Buttons right-aligned
+        -->
+
+        <!-- Save Button (green, calls onSaveClick) -->
+        <Button
+                fx:id="saveButton"
+                text="✓ Save"
+                prefWidth="100"
+                onAction="#onSaveClick"
+                style="-fx-font-size: 11; -fx-padding: 8; -fx-text-fill: white; -fx-base: #28a745;">
+            <!--
+            fx:id="saveButton" - Controller can enable/disable if needed
+            onAction="#onSaveClick" - Calls onSaveClick() when clicked
+            Green color (#28a745) to indicate positive action
+            -->
+        </Button>
+
+        <!-- Cancel Button (gray, closes dialog without saving) -->
+        <Button
+                fx:id="cancelButton"
+                text="✗ Cancel"
+                prefWidth="100"
+                onAction="#onCancelClick"
+                style="-fx-font-size: 11; -fx-padding: 8;">
+            <!--
+            fx:id="cancelButton" - Controller access (optional)
+            onAction="#onCancelClick" - Closes dialog without saving
+            -->
+        </Button>
+    </HBox>
+
+</VBox>

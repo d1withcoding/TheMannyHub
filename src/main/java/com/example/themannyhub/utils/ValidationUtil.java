@@ -193,7 +193,7 @@ public class ValidationUtil {
             return statusError;
         }
 
-        return null;
+        return "";
     }
 
 

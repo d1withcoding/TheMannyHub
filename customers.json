@@ -1,0 +1,14 @@
+{"customers": [{
+    "inseam": 40,
+    "phone": "0548809285",
+    "thigh": 20,
+    "name": "Michael",
+    "fitPreferences": "Slimfit",
+    "orderCount": 0,
+    "waist": 30,
+    "backRise": 8,
+    "id": 1,
+    "hip": 45,
+    "frontRise": 8,
+    "status": "ACTIVE"
+}]}
