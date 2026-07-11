@@ -198,7 +198,7 @@ The onAction="#methodName" links button clicks to controller methods
             <!-- Edit Button (enabled only when row selected) -->
             <Button
                     fx:id="editButton"
-                    text="✏️ Edit"
+                    text="Edit"
                     prefWidth="100"
                     onAction="#onEditCustomerClick"
                     style="-fx-font-size: 11; -fx-padding: 8;"
@@ -214,16 +214,12 @@ The onAction="#methodName" links button clicks to controller methods
             <!-- Delete Button (enabled only when row selected) -->
             <Button
                     fx:id="deleteButton"
-                    text="🗑️ Delete"
+                    text="Delete"
                     prefWidth="100"
                     onAction="#onDeleteCustomerClick"
                     style="-fx-font-size: 11; -fx-padding: 8; -fx-text-fill: white; -fx-base: #dc3545;"
                     disable="true">
-                <!--
-                fx:id="deleteButton" - Controller accesses this to enable/disable
-                disable="true" - Starts disabled
-                style with red color (#dc3545) to indicate danger
-                -->
+
             </Button>
 
             <!-- Spacer (fills empty space, pushes buttons to left) -->

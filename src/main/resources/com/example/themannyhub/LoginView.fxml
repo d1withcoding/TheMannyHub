@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+
+<VBox xmlns="http://javafx.com/javafx/21"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.example.themannyhub.controllers.LoginController"
+      alignment="CENTER"
+      spacing="15"
+      prefWidth="400"
+      prefHeight="350"
+      style="-fx-background-color: #f4f4f4;">
+
+    <padding>
+        <Insets top="30" right="30" bottom="30" left="30"/>
+    </padding>
+
+    <!-- Title -->
+    <Label text="The Manny Hub" style="-fx-font-size: 24px; -fx-font-weight: bold;"/>
+    <Label text="Tailor Management System" style="-fx-font-size: 14px; -fx-text-fill: #666;"/>
+
+    <!-- Separator -->
+    <Separator/>
+
+    <!-- Username Field -->
+    <VBox spacing="5" alignment="CENTER_LEFT">
+        <Label text="Username"/>
+        <TextField fx:id="usernameField" promptText="Enter username"
+                   prefWidth="300"/>
+        <Label fx:id="usernameError" text=""
+               style="-fx-text-fill: red; -fx-font-size: 12px;" visible="false"/>
+    </VBox>
+
+    <!-- Password Field -->
+    <VBox spacing="5" alignment="CENTER_LEFT">
+        <Label text="Password"/>
+        <PasswordField fx:id="passwordField" promptText="Enter password"
+                       prefWidth="300"/>
+        <Label fx:id="passwordError" text=""
+               style="-fx-text-fill: red; -fx-font-size: 12px;" visible="false"/>
+    </VBox>
+
+    <!-- Error Message -->
+    <Label fx:id="errorLabel" text=""
+           style="-fx-text-fill: red; -fx-font-size: 13px; -fx-font-weight: bold;"/>
+
+    <!-- Buttons -->
+    <HBox spacing="10" alignment="CENTER">
+        <Button fx:id="loginButton" text="Login"
+                onAction="#onLoginClick"
+                prefWidth="100"
+                style="-fx-background-color: #0078D7; -fx-text-fill: white;
+                       -fx-font-weight: bold;"/>
+        <Button fx:id="cancelButton" text="Exit"
+                onAction="#onCancelClick"
+                prefWidth="100"/>
+    </HBox>
+
+</VBox>

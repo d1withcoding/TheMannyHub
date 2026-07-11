@@ -1,6 +1,13 @@
 package com.example.themannyhub.utils;
 
 import com.example.themannyhub.models.Status;
+// Add these imports
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+import java.util.Base64;
+
+// Add these methods
 
 public class ValidationUtil {
     //Validation criteria for various measurements
@@ -196,7 +203,39 @@ public class ValidationUtil {
         return "";
     }
 
+    // Password Validation
+        // HashingPassword
+    public static String hashPassword(String password, String salt) {
+        try {
+            MessageDigest md = MessageDigest.getInstance("SHA-256");
+            md.update(salt.getBytes());
+            byte[] hashedBytes = md.digest(password.getBytes());
+            return Base64.getEncoder().encodeToString(hashedBytes);
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException("Hashing algorithm not available", e);
+        }
+    }
 
+    public static String generateSalt() {
+        SecureRandom random = new SecureRandom();
+        byte[] salt = new byte[16];
+        random.nextBytes(salt);
+        return Base64.getEncoder().encodeToString(salt);
+    }
+
+
+    //Validating UserName
+    public static boolean validateUsername(String username) {
+        return username != null && username.length() >= 3 && username.length() <= 20;
+    }
+
+
+    //Validate Password
+    public static boolean validatePassword(String password) {
+        // At least 6 chars, 1 number, 1 letter
+        return password != null && password.length() >= 6 &&
+                password.matches(".*[a-zA-Z].*") && password.matches(".*\\d.*");
+    }
 
 
 
