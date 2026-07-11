@@ -30,19 +30,23 @@ public class DashboardController {
     @FXML private VBox recentCustomersList;
 
     private CustomerService customerService;
+    private AuthService authService;
     private LinkedList<Customer> recentCustomers = new LinkedList<>();
     private PauseTransition searchDebounce;
 
     @FXML
     public void initialize() {
         customerService = new CustomerService();
+        authService = new AuthService();
 
-        // Set up user greeting
-        String username = AuthService.getCurrentUser() != null ?
-                AuthService.getCurrentUser().getUsername() : "User";
-        userLabel.setText("Welcome, " + username);
+        // Set welcome message using instance method
+        if (authService.getCurrentUser() != null) {
+            userLabel.setText("Welcome, " + authService.getCurrentUser().getUsername());
+        } else {
+            userLabel.setText("Welcome, User");
+        }
 
-        // Set up search with debounce
+        // Set up search debounce
         searchDebounce = new PauseTransition(Duration.millis(300));
         searchDebounce.setOnFinished(event -> performSearch());
 
@@ -55,10 +59,9 @@ public class DashboardController {
             }
         });
 
-        // Hide search results when clicking elsewhere
+        // Hide search results when focus leaves the search field
         searchField.focusedProperty().addListener((observable, oldValue, newValue) -> {
             if (!newValue) {
-                // Delay hiding to allow clicking on results
                 PauseTransition delay = new PauseTransition(Duration.millis(200));
                 delay.setOnFinished(event -> hideSearchResults());
                 delay.play();
@@ -84,7 +87,7 @@ public class DashboardController {
         } else {
             int count = 0;
             for (Customer customer : recentCustomers) {
-                if (count >= 8) break; // Show max 8 recent customers
+                if (count >= 8) break;
                 recentCustomersList.getChildren().add(createCustomerRow(customer));
                 count++;
             }
@@ -95,11 +98,9 @@ public class DashboardController {
         VBox row = new VBox(5);
         row.setStyle("-fx-padding: 10; -fx-background-radius: 5; -fx-cursor: hand;");
 
-        // Name
         Label nameLabel = new Label(customer.getName());
         nameLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;");
 
-        // Phone and Status
         HBox details = new HBox(10);
         Label phoneLabel = new Label(customer.getPhone());
         phoneLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #7f8c8d;");
@@ -111,13 +112,11 @@ public class DashboardController {
         details.getChildren().addAll(phoneLabel, statusLabel);
         row.getChildren().addAll(nameLabel, details);
 
-        // Hover effects
         row.setOnMouseEntered(event ->
                 row.setStyle("-fx-padding: 10; -fx-background-radius: 5; -fx-cursor: hand; -fx-background-color: #ebf5fb;"));
         row.setOnMouseExited(event ->
                 row.setStyle("-fx-padding: 10; -fx-background-radius: 5; -fx-cursor: hand;"));
 
-        // Click to open customer
         row.setOnMouseClicked(event -> openCustomerDialog(customer));
 
         return row;
@@ -130,7 +129,19 @@ public class DashboardController {
             return;
         }
 
-        List<Customer> results = customerService.searchCustomers(query);
+        // Search by name (CustomerService.searchCustomers may not exist)
+        // Use getAllCustomers and filter manually
+        List<Customer> allCustomers = customerService.getAllCustomers();
+        List<Customer> results = new ArrayList<>();
+        String lowerQuery = query.toLowerCase();
+
+        for (Customer c : allCustomers) {
+            if (c.getName().toLowerCase().contains(lowerQuery) ||
+                    c.getPhone().contains(lowerQuery)) {
+                results.add(c);
+            }
+        }
+
         showSearchResults(results);
     }
 
@@ -179,7 +190,6 @@ public class DashboardController {
             stage.initModality(Modality.APPLICATION_MODAL);
             stage.showAndWait();
 
-            // Refresh after dialog closes
             refreshAfterEdit();
 
         } catch (IOException e) {
@@ -188,10 +198,8 @@ public class DashboardController {
     }
 
     private void refreshAfterEdit() {
-        // Reload all customers to get updated data
         List<Customer> allCustomers = customerService.getAllCustomers();
 
-        // Update recent customers with fresh data
         List<Customer> updatedRecents = new ArrayList<>();
         for (Customer recent : recentCustomers) {
             for (Customer fresh : allCustomers) {
@@ -259,9 +267,11 @@ public class DashboardController {
 
             Stage stage = new Stage();
             stage.setTitle("Customer Management");
-            stage.setScene(new Scene(root));
-            stage.initModality(Modality.APPLICATION_MODAL);
-            stage.showAndWait();
+            stage.setScene(new Scene(root, 1100, 600));
+            stage.setMinWidth(800);
+            stage.setMinHeight(400);
+            stage.initModality(Modality.NONE);
+            stage.show();
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -287,32 +297,55 @@ public class DashboardController {
 
     @FXML
     private void handleLogout() {
-        AuthService.logout();
+        // Use instance method
+        authService.logout();
 
-        // Close dashboard
         Stage stage = (Stage) userLabel.getScene().getWindow();
         stage.close();
 
-        // Show login again
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource(
-                    "/com/example/themannyhub/LoginView.fxml"));
-            Parent root = loader.load();
-            Stage loginStage = new Stage();
-            loginStage.setTitle("The Manny Hub - Login");
-            loginStage.setScene(new Scene(root));
-            loginStage.show();
-        } catch (IOException e) {
-            e.printStackTrace();
+        Platform.runLater(() -> {
+            try {
+                FXMLLoader loginLoader = new FXMLLoader(
+                        getClass().getResource("/com/example/themannyhub/LoginView.fxml"));
+                Parent loginRoot = loginLoader.load();
+
+                Stage loginStage = new Stage();
+                loginStage.initModality(Modality.APPLICATION_MODAL);
+                loginStage.setTitle("Login - The Manny Hub");
+                loginStage.setResizable(false);
+                loginStage.setScene(new Scene(loginRoot, 400, 350));
+                loginStage.showAndWait();
+
+                LoginController loginController = loginLoader.getController();
+                if (loginController != null && loginController.isLoginSuccessful()) {
+                    refreshDashboard();
+                } else {
+                    Platform.exit();
+                }
+
+            } catch (IOException e) {
+                e.printStackTrace();
+                Platform.exit();
+            }
+        });
+    }
+
+    private void refreshDashboard() {
+        List<Customer> allCustomers = customerService.getAllCustomers();
+        if (!allCustomers.isEmpty()) {
+            setRecentCustomers(allCustomers.subList(0, Math.min(8, allCustomers.size())));
+        }
+
+        if (authService.getCurrentUser() != null) {
+            userLabel.setText("Welcome, " + authService.getCurrentUser().getUsername());
+        } else {
+            userLabel.setText("Welcome, User");
         }
     }
 
     public void addRecentCustomer(Customer customer) {
-        // Remove if already in list to avoid duplicates
         recentCustomers.removeIf(c -> c.getPhone().equals(customer.getPhone()));
-        // Add to front
         recentCustomers.addFirst(customer);
-        // Keep only last 8
         while (recentCustomers.size() > 8) {
             recentCustomers.removeLast();
         }

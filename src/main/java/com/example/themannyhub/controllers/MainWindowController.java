@@ -275,4 +275,10 @@ public class MainWindowController {
         alert.setContentText(message);
         alert.showAndWait();
     }
+
+    private DashboardController dashboardController;
+
+    public void setDashboardController(DashboardController controller) {
+        this.dashboardController = controller;
+    }
 }

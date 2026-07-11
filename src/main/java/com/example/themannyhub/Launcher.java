@@ -1,12 +1,17 @@
 package com.example.themannyhub;
 
+import com.example.themannyhub.controllers.DashboardController;
 import com.example.themannyhub.controllers.LoginController;
 import com.example.themannyhub.services.AuthService;
+import com.example.themannyhub.services.CustomerService;
+import com.example.themannyhub.models.Customer;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+
+import java.util.List;
 
 public class Launcher extends Application {
 
@@ -24,34 +29,12 @@ public class Launcher extends Application {
             return;
         }
 
-        // Load the main window after successful login
-        FXMLLoader loader = new FXMLLoader(
-                Launcher.class.getResource("/com/example/themannyhub/MainWindow.fxml")
-        );
-
-        Scene scene = new Scene(loader.load(), 1100, 600);
-
-        String userName = authService != null && authService.getCurrentUser() != null
-                ? " - " + authService.getCurrentUser().getDisplayName()
-                : "";
-        primaryStage.setTitle("The Manny Hub" + userName);
-        primaryStage.setScene(scene);
-        primaryStage.setMinWidth(800);
-        primaryStage.setMinHeight(400);
-
-        primaryStage.setOnCloseRequest(event -> {
-            if (authService != null) {
-                authService.logout();
-            }
-            System.exit(0);
-        });
-
-        primaryStage.show();
+        // Show dashboard after successful login
+        showDashboard();
     }
 
     private boolean showLoginDialog() {
         try {
-            // Use absolute path for module-aware resource loading
             FXMLLoader loader = new FXMLLoader(
                     Launcher.class.getResource("/com/example/themannyhub/LoginView.fxml")
             );
@@ -83,5 +66,47 @@ public class Launcher extends Application {
         }
 
         return false;
+    }
+
+    private void showDashboard() {
+        try {
+            FXMLLoader dashboardLoader = new FXMLLoader(
+                    Launcher.class.getResource("/com/example/themannyhub/Dashboard.fxml")
+            );
+
+            if (dashboardLoader.getLocation() == null) {
+                System.err.println("Dashboard.fxml not found!");
+                return;
+            }
+
+            Stage dashboardStage = new Stage();
+            Scene dashboardScene = new Scene(dashboardLoader.load(), 1000, 700);
+            dashboardStage.setTitle("The Manny Hub - Dashboard");
+            dashboardStage.setScene(dashboardScene);
+            dashboardStage.setMinWidth(900);
+            dashboardStage.setMinHeight(600);
+
+            // Load initial recent customers
+            DashboardController dashboardController = dashboardLoader.getController();
+            CustomerService customerService = new CustomerService();
+            List<Customer> allCustomers = customerService.getAllCustomers();
+            if (!allCustomers.isEmpty()) {
+                int limit = Math.min(8, allCustomers.size());
+                dashboardController.setRecentCustomers(allCustomers.subList(0, limit));
+            }
+
+            dashboardStage.setOnCloseRequest(event -> {
+                if (authService != null) {
+                    authService.logout();
+                }
+                System.exit(0);
+            });
+
+            dashboardStage.show();
+
+        } catch (Exception e) {
+            System.err.println("Error loading dashboard: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 }

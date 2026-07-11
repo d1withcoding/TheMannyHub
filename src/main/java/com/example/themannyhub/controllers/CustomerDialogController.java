@@ -147,9 +147,15 @@ public class CustomerDialogController {
 
         // All good - save and close
         saved = true;
+
+        // Add to recent customers on dashboard (if dashboard is available)
+        if (dashboardController != null) {
+            Customer savedCustomer = getCustomerData();
+            dashboardController.addRecentCustomer(savedCustomer);
+        }
+
         closeDialog();
     }
-
     @FXML
     private void onCancelClick() {
         saved = false;
@@ -235,4 +241,13 @@ public class CustomerDialogController {
         alert.setContentText(message);
         alert.showAndWait();
     }
+
+    private DashboardController dashboardController;
+
+    public void setDashboardController(DashboardController controller) {
+        this.dashboardController = controller;
+    }
+
+// Inside the save method, right before closing the dialog:
+
 }
