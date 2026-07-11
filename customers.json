@@ -1,14 +1,44 @@
-{"customers": [{
-    "inseam": 40,
-    "phone": "0548809285",
-    "thigh": 20,
-    "name": "Michael",
-    "fitPreferences": "Slimfit",
-    "orderCount": 0,
-    "waist": 30,
-    "backRise": 8,
-    "id": 1,
-    "hip": 45,
-    "frontRise": 8,
-    "status": "ACTIVE"
-}]}
+{"customers": [
+    {
+        "inseam": 40,
+        "phone": "0548809285",
+        "thigh": 45,
+        "name": "Michael",
+        "fitPreferences": "Slimfit",
+        "orderCount": 0,
+        "waist": 30,
+        "backRise": 8,
+        "id": 1,
+        "hip": 20,
+        "frontRise": 8,
+        "status": "ACTIVE"
+    },
+    {
+        "inseam": 38,
+        "phone": "0548892344",
+        "thigh": 45,
+        "name": "Felicia",
+        "fitPreferences": "Wide legged",
+        "orderCount": 0,
+        "waist": 39,
+        "backRise": 9,
+        "id": 2,
+        "hip": 22,
+        "frontRise": 9,
+        "status": "ACTIVE"
+    },
+    {
+        "inseam": 34,
+        "phone": "0553713035",
+        "thigh": 18,
+        "name": "Shirley Laryea Ayo",
+        "fitPreferences": "Prefers Wide Legged",
+        "orderCount": 0,
+        "waist": 27.5,
+        "backRise": 8,
+        "id": 3,
+        "hip": 36,
+        "frontRise": 8,
+        "status": "ACTIVE"
+    }
+]}
