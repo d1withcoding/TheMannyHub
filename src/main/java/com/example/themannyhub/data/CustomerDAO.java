@@ -13,8 +13,11 @@ import java.util.List;
 
 public class CustomerDAO {
     private static final String FILE_PATH = "customers.json";
-    //load customers from json file to an array
 
+    /**
+     * Loads customers from the JSON file.
+     * Returns an empty list if the file does not exist or is empty.
+     */
     public List<Customer> loadCustomersFromFile(){
         List<Customer> customers = new ArrayList<>();
 
@@ -23,7 +26,6 @@ public class CustomerDAO {
 
             if (!Files.exists(filePath)){
                 System.out.println("No existing customer data found. Starting with an empty list");
-                //Return empty list for customers
                 return customers;
             }
 
@@ -35,7 +37,6 @@ public class CustomerDAO {
 
             JSONObject jsonObject = new JSONObject(content);
             JSONArray jsonArray = jsonObject.getJSONArray("customers");
-
 
             for (int i = 0; i < jsonArray.length(); i++){
                 JSONObject customerJson = jsonArray.getJSONObject(i);
@@ -55,10 +56,7 @@ public class CustomerDAO {
     }
 
     public void saveCustomersToFile(List<Customer> customers) throws IOException{
-        // Object to hold customer information (Folder)
         JSONObject rootObject = new JSONObject();
-
-        //Array to hold all customers
         JSONArray customersArray = new JSONArray();
 
         for (Customer customer : customers){
@@ -68,23 +66,25 @@ public class CustomerDAO {
 
         rootObject.put("customers", customersArray);
 
-        // Open fileWriter and close with try
         try(FileWriter  writer = new FileWriter(FILE_PATH)){
             writer.write(rootObject.toString(4));
-            writer.flush();//Ensures all data is written
+            writer.flush();
         }
 
         System.out.println("Successfully saved " + customers.size() + " customers to file");
     }
 
-    //Helper methods to convert Customer Data to JSON and JSON to customer data
+    /**
+     * Parses a single customer JSON object into a Customer.
+     * The parameter order MUST match the Customer constructor:
+     *   (id, name, phone, waist, inseam, hip, thigh, frontRise, backRise, fitPreferences, status)
+     */
     private Customer parseCustomerFromJson(JSONObject json){
         try{
             int id = json.optInt("id", 0);
             String name = json.optString("name", "");
             String phone = json.optString("phone", "");
 
-            // Use opt method to keep system from crashing if field is missing
             double waist = json.optDouble("waist", 0.0);
             double inseam = json.optDouble("inseam", 0.0);
             double hip = json.optDouble("hip", 0.0);
@@ -93,7 +93,6 @@ public class CustomerDAO {
             double backRise = json.optDouble("backRise", 0.0);
 
             String fitPreferences = json.optString("fitPreferences", "");
-            int orderCount = json.optInt("orderCount", 0);
 
             String statusString = json.optString("status", "ACTIVE");
             Status status;
@@ -104,14 +103,15 @@ public class CustomerDAO {
                 status = Status.ACTIVE;
             }
 
-            Customer customer = new Customer(id, name, phone, waist, inseam, thigh,hip, frontRise, backRise, fitPreferences, status);
-            return customer;
+            // Order: waist, inseam, hip, thigh, frontRise, backRise — matches the Customer constructor.
+            return new Customer(id, name, phone,
+                    waist, inseam, hip, thigh,
+                    frontRise, backRise,
+                    fitPreferences, status);
         } catch (Exception e){
             System.err.println("Error parsing customer from JSON: " + e.getMessage());
             return null;
         }
-
-
     }
 
     private JSONObject convertCustomerToJson(Customer customer){
@@ -126,10 +126,7 @@ public class CustomerDAO {
         json.put("frontRise", customer.getFrontRise());
         json.put("backRise", customer.getBackRise());
         json.put("fitPreferences", customer.getFitPreferences());
-        json.put("orderCount", customer.getOrderCount());
-
         json.put("status", customer.getStatus().name());
         return json;
     }
-
 }

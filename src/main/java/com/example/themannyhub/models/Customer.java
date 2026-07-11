@@ -12,7 +12,6 @@ public class Customer {
     private double frontRise;
     private double backRise;
     private String fitPreferences;
-    private int orderCount;
     private Status status;
 
 
@@ -33,7 +32,6 @@ public class Customer {
         this.frontRise = frontRise;
         this.backRise = backRise;
         this.fitPreferences = fitPreferences;
-        this.orderCount = 0;
         this.status = status;
     }
 
@@ -77,10 +75,6 @@ public class Customer {
 
     public String getFitPreferences(){
         return  fitPreferences;
-    }
-
-    public int getOrderCount() {
-        return orderCount;
     }
 
     public Status getStatus() {
@@ -127,11 +121,6 @@ public class Customer {
         this.fitPreferences = fitPreferences;
     }
 
-    // Since orderCOunt begins at zero then this method only gets to increase
-    public void incrementOrderCount() {
-        this.orderCount ++;
-    }
-
     public void setStatus(Status status) {
         this.status = status;
     }
@@ -157,9 +146,7 @@ public class Customer {
                     ", frontRise=" + frontRise +
                     ", backRise=" + backRise +
                     ", fitPreferences='" + fitPreferences + '\'' +
-                    ", orderCount=" + orderCount +
                     ", status=" + status +
                     '}';
     }
 }
-

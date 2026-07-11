@@ -99,7 +99,7 @@ public class CustomerDialogController {
                 parseDouble(thighField.getText()),
                 parseDouble(frontRiseField.getText()),
                 parseDouble(backRiseField.getText()),
-                fitPreferencesArea.getText().trim(),// orderCount placeholder
+                fitPreferencesArea.getText().trim(),
                 statusComboBox.getValue()
         );
     }

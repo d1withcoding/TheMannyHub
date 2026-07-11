@@ -6,6 +6,7 @@ import com.example.themannyhub.utils.ValidationUtil;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class CustomerService {
     // Initializing master list of all customers
@@ -190,5 +191,12 @@ public class CustomerService {
             }
         }
         return  -1;
+    }
+    // In CustomerService.java
+    public List<Customer> searchCustomersByName(String query, List<Customer> sourceList) {
+        String lowerQuery = query.toLowerCase();
+        return sourceList.stream()
+                .filter(c -> c.getName().toLowerCase().contains(lowerQuery))
+                .collect(Collectors.toList());
     }
 }

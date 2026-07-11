@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.Region?>
+
+<!--
+GarmentWindow.fxml - Lists all garments that belong to a single customer.
+The window is opened from the main window's "Manage Garments" button.
+-->
+
+<BorderPane
+        xmlns="http://javafx.com/javafx"
+        xmlns:fx="http://javafx.com/fxml"
+        fx:controller="com.example.themannyhub.controllers.GarmentWindowController"
+        style="-fx-font-family: 'Segoe UI'; -fx-font-size: 11;">
+
+    <top>
+        <VBox spacing="12" style="-fx-padding: 15; -fx-background-color: #f5f5f5; -fx-border-color: #ddd; -fx-border-width: 0 0 1 0;">
+            <Label fx:id="titleLabel"
+                   text="Garments"
+                   style="-fx-font-size: 18; -fx-font-weight: bold; -fx-text-fill: #333;"/>
+            <HBox spacing="10" alignment="CENTER_LEFT">
+                <Label text="Filter by Type:" style="-fx-font-weight: bold; -fx-min-width: 100;"/>
+                <ComboBox fx:id="typeFilterComboBox" prefWidth="180" onAction="#onTypeFilterChange"/>
+            </HBox>
+        </VBox>
+    </top>
+
+    <center>
+        <TableView fx:id="garmentTable" prefHeight="400" style="-fx-padding: 10;">
+            <columns>
+                <TableColumn fx:id="idColumn" text="ID" prefWidth="50"/>
+                <TableColumn fx:id="typeColumn" text="Type" prefWidth="90"/>
+                <TableColumn fx:id="summaryColumn" text="Measurements" prefWidth="420"/>
+                <TableColumn fx:id="notesColumn" text="Notes" prefWidth="180"/>
+                <TableColumn fx:id="modifiedColumn" text="Last Modified" prefWidth="140"/>
+            </columns>
+        </TableView>
+    </center>
+
+    <bottom>
+        <HBox spacing="10" alignment="CENTER_LEFT"
+              style="-fx-padding: 15; -fx-background-color: #f9f9f9; -fx-border-color: #ddd; -fx-border-width: 1 0 0 0;">
+            <Button fx:id="addButton" text="➕ Add Garment" prefWidth="140"
+                    onAction="#onAddGarmentClick"
+                    style="-fx-font-size: 11; -fx-padding: 8;"/>
+            <Button fx:id="editButton" text="Edit" prefWidth="100"
+                    onAction="#onEditGarmentClick"
+                    style="-fx-font-size: 11; -fx-padding: 8;"
+                    disable="true"/>
+            <Button fx:id="deleteButton" text="Delete" prefWidth="100"
+                    onAction="#onDeleteGarmentClick"
+                    style="-fx-font-size: 11; -fx-padding: 8; -fx-text-fill: white; -fx-base: #dc3545;"
+                    disable="true"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Label fx:id="statusLabel" text="Ready" style="-fx-text-fill: #666; -fx-font-size: 10;"/>
+        </HBox>
+    </bottom>
+
+</BorderPane>

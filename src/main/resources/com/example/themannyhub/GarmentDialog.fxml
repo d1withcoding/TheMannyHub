@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<!--
+GarmentDialog.fxml - Used for both creating and editing a Garment.
+
+The garment type is chosen with a top ComboBox. Only one Tab is visible at a
+time and each tab's fields are wired by the controller to the appropriate
+Garment subclass.
+-->
+
+<VBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.example.themannyhub.controllers.GarmentDialogController"
+      spacing="12"
+      style="-fx-padding: 18; -fx-font-family: 'Segoe UI'; -fx-font-size: 11;">
+
+    <Label fx:id="dialogTitle" text="Add Garment"
+           style="-fx-font-size: 16; -fx-font-weight: bold; -fx-text-fill: #333;"/>
+
+    <!-- Type picker — drives which tab is shown. -->
+    <HBox spacing="10" alignment="CENTER_LEFT">
+        <Label text="Garment Type:" style="-fx-font-weight: bold; -fx-min-width: 110;"/>
+        <ComboBox fx:id="typeComboBox" prefWidth="200" onAction="#onTypeChanged"/>
+    </HBox>
+
+    <TabPane fx:id="typeTabPane" tabClosingPolicy="UNAVAILABLE">
+
+        <!-- TROUSERS tab -->
+        <Tab fx:id="trousersTab" text="Trousers">
+            <GridPane hgap="10" vgap="8" style="-fx-padding: 10;">
+                <Label text="Waist (in):" GridPane.columnIndex="0" GridPane.rowIndex="0" style="-fx-font-weight: bold;"/>
+                <TextField fx:id="trouserWaistField" prefWidth="200" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+                <Label text="Inseam (in):" GridPane.columnIndex="0" GridPane.rowIndex="1" style="-fx-font-weight: bold;"/>
+                <TextField fx:id="trouserInseamField" prefWidth="200" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+                <Label text="Hip (in):" GridPane.columnIndex="0" GridPane.rowIndex="2" style="-fx-font-weight: bold;"/>
+                <TextField fx:id="trouserHipField" prefWidth="200" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+                <Label text="Thigh (in):" GridPane.columnIndex="0" GridPane.rowIndex="3" style="-fx-font-weight: bold;"/>
+                <TextField fx:id="trouserThighField" prefWidth="200" GridPane.columnIndex="1" GridPane.rowIndex="3"/>
+                <Label text="Front Rise (in):" GridPane.columnIndex="0" GridPane.rowIndex="4" style="-fx-font-weight: bold;"/>
+                <TextField fx:id="trouserFrontRiseField" prefWidth="200" GridPane.columnIndex="1" GridPane.rowIndex="4"/>
+                <Label text="Back Rise (in):" GridPane.columnIndex="0" GridPane.rowIndex="5" style="-fx-font-weight: bold;"/>
+                <TextField fx:id="trouserBackRiseField" prefWidth="200" GridPane.columnIndex="1" GridPane.rowIndex="5"/>
+                <Label text="Fit Preferences:" GridPane.columnIndex="0" GridPane.rowIndex="6" style="-fx-font-weight: bold; -fx-alignment: TOP_LEFT;"/>
+                <TextArea fx:id="trouserFitPreferencesArea" prefRowCount="2" wrapText="true"
+                          GridPane.columnIndex="1" GridPane.rowIndex="6"/>
+            </GridPane>
+        </Tab>
+
+        <!-- SHIRT tab -->
+        <Tab fx:id="shirtTab" text="Shirt">
+            <GridPane hgap="10" vgap="8" style="-fx-padding: 10;">
+                <Label text="Chest (in):" GridPane.columnIndex="0" GridPane.rowIndex="0" style="-fx-font-weight: bold;"/>
+                <TextField fx:id="shirtChestField" prefWidth="200" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+                <Label text="Shoulder (in):" GridPane.columnIndex="0" GridPane.rowIndex="1" style="-fx-font-weight: bold;"/>
+                <TextField fx:id="shirtShoulderField" prefWidth="200" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+                <Label text="Sleeve (in):" GridPane.columnIndex="0" GridPane.rowIndex="2" style="-fx-font-weight: bold;"/>
+                <TextField fx:id="shirtSleeveField" prefWidth="200" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+                <Label text="Neck (in):" GridPane.columnIndex="0" GridPane.rowIndex="3" style="-fx-font-weight: bold;"/>
+                <TextField fx:id="shirtNeckField" prefWidth="200" GridPane.columnIndex="1" GridPane.rowIndex="3"/>
+                <Label text="Shirt Length (in):" GridPane.columnIndex="0" GridPane.rowIndex="4" style="-fx-font-weight: bold;"/>
+                <TextField fx:id="shirtLengthField" prefWidth="200" GridPane.columnIndex="1" GridPane.rowIndex="4"/>
+                <Label text="Sleeve Style:" GridPane.columnIndex="0" GridPane.rowIndex="5" style="-fx-font-weight: bold;"/>
+                <ComboBox fx:id="shirtSleeveStyleCombo" prefWidth="200" GridPane.columnIndex="1" GridPane.rowIndex="5"/>
+                <Label text="Collar Style:" GridPane.columnIndex="0" GridPane.rowIndex="6" style="-fx-font-weight: bold;"/>
+                <ComboBox fx:id="shirtCollarStyleCombo" prefWidth="200" GridPane.columnIndex="1" GridPane.rowIndex="6"/>
+            </GridPane>
+        </Tab>
+
+        <!-- JACKET tab -->
+        <Tab fx:id="jacketTab" text="Jacket">
+            <GridPane hgap="10" vgap="8" style="-fx-padding: 10;">
+                <Label text="Chest (in):" GridPane.columnIndex="0" GridPane.rowIndex="0" style="-fx-font-weight: bold;"/>
+                <TextField fx:id="jacketChestField" prefWidth="200" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+                <Label text="Shoulder (in):" GridPane.columnIndex="0" GridPane.rowIndex="1" style="-fx-font-weight: bold;"/>
+                <TextField fx:id="jacketShoulderField" prefWidth="200" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+                <Label text="Length (in):" GridPane.columnIndex="0" GridPane.rowIndex="2" style="-fx-font-weight: bold;"/>
+                <TextField fx:id="jacketLengthField" prefWidth="200" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+                <Label text="Sleeve (in):" GridPane.columnIndex="0" GridPane.rowIndex="3" style="-fx-font-weight: bold;"/>
+                <TextField fx:id="jacketSleeveField" prefWidth="200" GridPane.columnIndex="1" GridPane.rowIndex="3"/>
+                <Label text="Waist (in):" GridPane.columnIndex="0" GridPane.rowIndex="4" style="-fx-font-weight: bold;"/>
+                <TextField fx:id="jacketWaistField" prefWidth="200" GridPane.columnIndex="1" GridPane.rowIndex="4"/>
+                <Label text="Fit:" GridPane.columnIndex="0" GridPane.rowIndex="5" style="-fx-font-weight: bold;"/>
+                <ComboBox fx:id="jacketFitCombo" prefWidth="200" GridPane.columnIndex="1" GridPane.rowIndex="5"/>
+                <Label text="Lapel:" GridPane.columnIndex="0" GridPane.rowIndex="6" style="-fx-font-weight: bold;"/>
+                <ComboBox fx:id="jacketLapelCombo" prefWidth="200" GridPane.columnIndex="1" GridPane.rowIndex="6"/>
+            </GridPane>
+        </Tab>
+
+        <!-- SUIT tab -->
+        <Tab fx:id="suitTab" text="Suit">
+            <GridPane hgap="10" vgap="8" style="-fx-padding: 10;">
+                <Label text="— Jacket —" GridPane.columnIndex="0" GridPane.rowIndex="0" GridPane.columnSpan="2"
+                       style="-fx-font-weight: bold; -fx-text-fill: #555;"/>
+                <Label text="Jacket Chest (in):" GridPane.columnIndex="0" GridPane.rowIndex="1" style="-fx-font-weight: bold;"/>
+                <TextField fx:id="suitJacketChestField" prefWidth="200" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+                <Label text="Jacket Shoulder (in):" GridPane.columnIndex="0" GridPane.rowIndex="2" style="-fx-font-weight: bold;"/>
+                <TextField fx:id="suitJacketShoulderField" prefWidth="200" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+                <Label text="Jacket Length (in):" GridPane.columnIndex="0" GridPane.rowIndex="3" style="-fx-font-weight: bold;"/>
+                <TextField fx:id="suitJacketLengthField" prefWidth="200" GridPane.columnIndex="1" GridPane.rowIndex="3"/>
+                <Label text="Jacket Sleeve (in):" GridPane.columnIndex="0" GridPane.rowIndex="4" style="-fx-font-weight: bold;"/>
+                <TextField fx:id="suitJacketSleeveField" prefWidth="200" GridPane.columnIndex="1" GridPane.rowIndex="4"/>
+                <Label text="— Trousers —" GridPane.columnIndex="0" GridPane.rowIndex="5" GridPane.columnSpan="2"
+                       style="-fx-font-weight: bold; -fx-text-fill: #555;"/>
+                <Label text="Trouser Waist (in):" GridPane.columnIndex="0" GridPane.rowIndex="6" style="-fx-font-weight: bold;"/>
+                <TextField fx:id="suitTrouserWaistField" prefWidth="200" GridPane.columnIndex="1" GridPane.rowIndex="6"/>
+                <Label text="Trouser Inseam (in):" GridPane.columnIndex="0" GridPane.rowIndex="7" style="-fx-font-weight: bold;"/>
+                <TextField fx:id="suitTrouserInseamField" prefWidth="200" GridPane.columnIndex="1" GridPane.rowIndex="7"/>
+                <Label text="Trouser Hip (in):" GridPane.columnIndex="0" GridPane.rowIndex="8" style="-fx-font-weight: bold;"/>
+                <TextField fx:id="suitTrouserHipField" prefWidth="200" GridPane.columnIndex="1" GridPane.rowIndex="8"/>
+                <Label text="Trouser Thigh (in):" GridPane.columnIndex="0" GridPane.rowIndex="9" style="-fx-font-weight: bold;"/>
+                <TextField fx:id="suitTrouserThighField" prefWidth="200" GridPane.columnIndex="1" GridPane.rowIndex="9"/>
+                <Label text="Trouser Front Rise (in):" GridPane.columnIndex="0" GridPane.rowIndex="10" style="-fx-font-weight: bold;"/>
+                <TextField fx:id="suitTrouserFrontRiseField" prefWidth="200" GridPane.columnIndex="1" GridPane.rowIndex="10"/>
+                <Label text="Trouser Back Rise (in):" GridPane.columnIndex="0" GridPane.rowIndex="11" style="-fx-font-weight: bold;"/>
+                <TextField fx:id="suitTrouserBackRiseField" prefWidth="200" GridPane.columnIndex="1" GridPane.rowIndex="11"/>
+                <Label text="Jacket Fit:" GridPane.columnIndex="0" GridPane.rowIndex="12" style="-fx-font-weight: bold;"/>
+                <ComboBox fx:id="suitJacketFitCombo" prefWidth="200" GridPane.columnIndex="1" GridPane.rowIndex="12"/>
+                <Label text="Lapel:" GridPane.columnIndex="0" GridPane.rowIndex="13" style="-fx-font-weight: bold;"/>
+                <ComboBox fx:id="suitLapelCombo" prefWidth="200" GridPane.columnIndex="1" GridPane.rowIndex="13"/>
+                <Label text="Trouser Fit Preferences:" GridPane.columnIndex="0" GridPane.rowIndex="14" style="-fx-font-weight: bold; -fx-alignment: TOP_LEFT;"/>
+                <TextArea fx:id="suitTrouserFitArea" prefRowCount="2" wrapText="true"
+                          GridPane.columnIndex="1" GridPane.rowIndex="14"/>
+            </GridPane>
+        </Tab>
+    </TabPane>
+
+    <!-- Shared notes (applies to all garment types) -->
+    <VBox spacing="4">
+        <Label text="Notes:" style="-fx-font-weight: bold;"/>
+        <TextArea fx:id="notesArea" prefRowCount="2" wrapText="true"/>
+    </VBox>
+
+    <HBox spacing="10" alignment="CENTER_RIGHT"
+          style="-fx-padding: 10 0 0 0; -fx-border-color: #ddd; -fx-border-width: 1 0 0 0;">
+        <Button fx:id="saveButton" text="✓ Save" prefWidth="100" onAction="#onSaveClick"
+                style="-fx-font-size: 11; -fx-padding: 8; -fx-text-fill: white; -fx-base: #28a745;"/>
+        <Button fx:id="cancelButton" text="✗ Cancel" prefWidth="100" onAction="#onCancelClick"
+                style="-fx-font-size: 11; -fx-padding: 8;"/>
+    </HBox>
+
+</VBox>

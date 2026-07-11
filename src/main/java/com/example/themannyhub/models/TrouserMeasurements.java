@@ -2,12 +2,9 @@ package com.example.themannyhub.models;
 
 /**
  * TrouserMeasurements class - inherits from Garment.
- * Represents all measurements needed for custom tailored trousers.
- * Overrides validate() and getMeasurementSummary() to implement trouser-specific behavior.
  */
 public class TrouserMeasurements extends Garment {
 
-    // Trouser-specific measurements
     private double waist;
     private double inseam;
     private double hip;
@@ -16,14 +13,11 @@ public class TrouserMeasurements extends Garment {
     private double backRise;
     private String fitPreferences;
 
-    /**
-     * Constructor for trouser measurements.
-     * Calls the parent constructor and initializes trouser-specific fields.
-     */
-    public TrouserMeasurements(int id, double waist, double inseam, double hip,
+    public TrouserMeasurements(int id, int customerId,
+                               double waist, double inseam, double hip,
                                double thigh, double frontRise, double backRise,
                                String fitPreferences, String notes) {
-        super(id, "TROUSERS", notes);
+        super(id, customerId, "TROUSERS", notes);
         this.waist = waist;
         this.inseam = inseam;
         this.hip = hip;
@@ -33,11 +27,6 @@ public class TrouserMeasurements extends Garment {
         this.fitPreferences = fitPreferences;
     }
 
-    /**
-     * Overrides the abstract validate() method from Garment.
-     * Implements trouser-specific validation rules.
-     * This is polymorphism - the same method name does different things depending on the garment type.
-     */
     @Override
     public void validate() {
         if (waist < 24 || waist > 50) {
@@ -60,85 +49,54 @@ public class TrouserMeasurements extends Garment {
         }
     }
 
-    /**
-     * Overrides getMeasurementSummary() to return a formatted string of all trouser measurements.
-     * Polymorphism - each garment type returns its own format.
-     */
     @Override
     public String getMeasurementSummary() {
         return String.format("Trousers - Waist: %.1f\", Inseam: %.1f\", Hip: %.1f\", Thigh: %.1f\", Front Rise: %.1f\", Back Rise: %.1f\"",
                 waist, inseam, hip, thigh, frontRise, backRise);
     }
 
-    /**
-     * Overrides getRequiredMeasurements() to list which fields are needed for trousers.
-     * Useful for UI that needs to know which form fields to display.
-     */
     @Override
     public String[] getRequiredMeasurements() {
         return new String[] {"waist", "inseam", "hip", "thigh", "frontRise", "backRise"};
     }
 
-    // Getters and setters for trouser-specific measurements
-
-    public double getWaist() {
-        return waist;
-    }
-
+    public double getWaist() { return waist; }
     public void setWaist(double waist) {
         this.waist = waist;
         this.dateLastModified = java.time.LocalDateTime.now();
     }
 
-    public double getInseam() {
-        return inseam;
-    }
-
+    public double getInseam() { return inseam; }
     public void setInseam(double inseam) {
         this.inseam = inseam;
         this.dateLastModified = java.time.LocalDateTime.now();
     }
 
-    public double getHip() {
-        return hip;
-    }
-
+    public double getHip() { return hip; }
     public void setHip(double hip) {
         this.hip = hip;
         this.dateLastModified = java.time.LocalDateTime.now();
     }
 
-    public double getThigh() {
-        return thigh;
-    }
-
+    public double getThigh() { return thigh; }
     public void setThigh(double thigh) {
         this.thigh = thigh;
         this.dateLastModified = java.time.LocalDateTime.now();
     }
 
-    public double getFrontRise() {
-        return frontRise;
-    }
-
+    public double getFrontRise() { return frontRise; }
     public void setFrontRise(double frontRise) {
         this.frontRise = frontRise;
         this.dateLastModified = java.time.LocalDateTime.now();
     }
 
-    public double getBackRise() {
-        return backRise;
-    }
-
+    public double getBackRise() { return backRise; }
     public void setBackRise(double backRise) {
         this.backRise = backRise;
         this.dateLastModified = java.time.LocalDateTime.now();
     }
 
-    public String getFitPreferences() {
-        return fitPreferences;
-    }
-
+    public String getFitPreferences() { return fitPreferences; }
     public void setFitPreferences(String fitPreferences) {
         this.fitPreferences = fitPreferences;
         this.dateLastModified = java.time.LocalDateTime.now();
@@ -148,6 +106,7 @@ public class TrouserMeasurements extends Garment {
     public String toString() {
         return "TrouserMeasurements{" +
                 "id=" + id +
+                ", customerId=" + customerId +
                 ", waist=" + waist +
                 ", inseam=" + inseam +
                 ", hip=" + hip +

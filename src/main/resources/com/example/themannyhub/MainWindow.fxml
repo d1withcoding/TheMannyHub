@@ -17,7 +17,7 @@ MainWindow.fxml - The main customer management interface for The Manny Hub CRM
 This file defines the layout of the main application window:
 1. Top section: Title, search bar, and status filter
 2. Center section: Table displaying all customers (11 columns)
-3. Bottom section: Action buttons (Add, Edit, Delete)
+3. Bottom section: Action buttons (Add, Edit, Delete, Manage Garments)
 
 The fx:controller attribute links this FXML to MainWindowController.java
 The fx:id attributes link FXML elements to Java @FXML annotated fields
@@ -49,14 +49,7 @@ The onAction="#methodName" links button clicks to controller methods
                         fx:id="searchTextField"
                         promptText="Type customer name..."
                         prefWidth="300"
-                        onKeyReleased="#onSearchTextChange">
-                    <!--
-                    fx:id="searchTextField" - Java controller can access this TextField
-                    promptText - Placeholder text shown when empty
-                    onKeyReleased="#onSearchTextChange" - Calls onSearchTextChange() method when user types
-                    Note: onKeyReleased means search updates as you type (real-time)
-                    -->
-                </TextField>
+                        onKeyReleased="#onSearchTextChange"/>
                 <Label text="Results will update as you type" style="-fx-text-fill: #666; -fx-font-size: 10;"/>
             </HBox>
 
@@ -66,13 +59,7 @@ The onAction="#methodName" links button clicks to controller methods
                 <ComboBox
                         fx:id="statusFilterComboBox"
                         prefWidth="150"
-                        onAction="#onStatusFilterChange">
-                    <!--
-                    fx:id="statusFilterComboBox" - Java controller accesses this
-                    onAction="#onStatusFilterChange" - Calls method when selection changes
-                    Items populated by controller (All Customers, Active, Inactive)
-                    -->
-                </ComboBox>
+                        onAction="#onStatusFilterChange"/>
             </HBox>
         </VBox>
     </top>
@@ -86,86 +73,19 @@ The onAction="#methodName" links button clicks to controller methods
                 fx:id="customerTable"
                 prefHeight="400"
                 style="-fx-padding: 10;">
-            <!--
-            fx:id="customerTable" - Java controller accesses this TableView
-            prefHeight="400" - Initial height (will resize with window)
-            The columns are defined below, each with a unique name and type
-            -->
-
-            <!-- Column 1: ID -->
             <columns>
-                <TableColumn
-                        text="ID"
-                        prefWidth="40"
-                        sortable="false">
-                    <!--
-                    text="ID" - Column header shown to user
-                    prefWidth="40" - Initial width (can be resized by user)
-                    sortable="false" - User can't sort by this column
-                    cellValueFactory handled by controller via setCellValueFactory()
-                    -->
-                </TableColumn>
-
-                <!-- Column 2: Name -->
-                <TableColumn
-                        text="Name"
-                        prefWidth="120">
-                    <!--
-                    This column displays customer.getName()
-                    Sorting enabled by default
-                    -->
-                </TableColumn>
-
-                <!-- Column 3: Phone -->
-                <TableColumn
-                        text="Phone"
-                        prefWidth="100"/>
-
-                <!-- Column 4: Waist -->
-                <TableColumn
-                        text="Waist (in)"
-                        prefWidth="80"/>
-
-                <!-- Column 5: Inseam -->
-                <TableColumn
-                        text="Inseam (in)"
-                        prefWidth="80"/>
-
-                <!-- Column 6: Hip -->
-                <TableColumn
-                        text="Hip (in)"
-                        prefWidth="80"/>
-
-                <!-- Column 7: Thigh -->
-                <TableColumn
-                        text="Thigh (in)"
-                        prefWidth="80"/>
-
-                <!-- Column 8: Front Rise -->
-                <TableColumn
-                        text="Front Rise (in)"
-                        prefWidth="90"/>
-
-                <!-- Column 9: Back Rise -->
-                <TableColumn
-                        text="Back Rise (in)"
-                        prefWidth="90"/>
-
-                <!-- Column 10: Fit Preferences -->
-                <TableColumn
-                        text="Fit Preferences"
-                        prefWidth="150"/>
-
-                <!-- Column 11: Status -->
-                <TableColumn
-                        text="Status"
-                        prefWidth="80"/>
+                <TableColumn fx:id="idColumn" text="ID" prefWidth="40" sortable="false"/>
+                <TableColumn fx:id="nameColumn" text="Name" prefWidth="120"/>
+                <TableColumn fx:id="phoneColumn" text="Phone" prefWidth="100"/>
+                <TableColumn fx:id="waistColumn" text="Waist (in)" prefWidth="80"/>
+                <TableColumn fx:id="inseamColumn" text="Inseam (in)" prefWidth="80"/>
+                <TableColumn fx:id="hipColumn" text="Hip (in)" prefWidth="80"/>
+                <TableColumn fx:id="thighColumn" text="Thigh (in)" prefWidth="80"/>
+                <TableColumn fx:id="frontRiseColumn" text="Front Rise (in)" prefWidth="90"/>
+                <TableColumn fx:id="backRiseColumn" text="Back Rise (in)" prefWidth="90"/>
+                <TableColumn fx:id="fitPreferencesColumn" text="Fit Preferences" prefWidth="150"/>
+                <TableColumn fx:id="statusColumn" text="Status" prefWidth="80"/>
             </columns>
-            <!--
-            Note: Controller will programmatically set up cellValueFactory for each column
-            This links the column to the Customer object's getter methods
-            Example: nameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
-            -->
         </TableView>
     </center>
 
@@ -179,62 +99,43 @@ The onAction="#methodName" links button clicks to controller methods
                 alignment="CENTER_LEFT"
                 style="-fx-padding: 15; -fx-background-color: #f9f9f9; -fx-border-color: #ddd; -fx-border-width: 1 0 0 0;">
 
-            <!-- Add Button (always enabled) -->
             <Button
                     fx:id="addButton"
                     text="➕ Add Customer"
                     prefWidth="150"
                     onAction="#onAddCustomerClick"
-                    style="-fx-font-size: 11; -fx-padding: 8;">
-                <!--
-                fx:id="addButton" - Reference in controller (optional here)
-                text="➕ Add Customer" - Button label (emoji + text)
-                onAction="#onAddCustomerClick" - Calls onAddCustomerClick() when clicked
-                prefWidth="150" - Minimum width
-                This button is ALWAYS enabled (user can add anytime)
-                -->
-            </Button>
+                    style="-fx-font-size: 11; -fx-padding: 8;"/>
 
-            <!-- Edit Button (enabled only when row selected) -->
             <Button
                     fx:id="editButton"
                     text="Edit"
                     prefWidth="100"
                     onAction="#onEditCustomerClick"
                     style="-fx-font-size: 11; -fx-padding: 8;"
-                    disable="true">
-                <!--
-                fx:id="editButton" - Controller accesses this to enable/disable
-                disable="true" - Starts disabled (user must select a customer first)
-                Controller will call: editButton.disableProperty().bind(...)
-                to enable only when table row is selected
-                -->
-            </Button>
+                    disable="true"/>
 
-            <!-- Delete Button (enabled only when row selected) -->
             <Button
                     fx:id="deleteButton"
                     text="Delete"
                     prefWidth="100"
                     onAction="#onDeleteCustomerClick"
                     style="-fx-font-size: 11; -fx-padding: 8; -fx-text-fill: white; -fx-base: #dc3545;"
-                    disable="true">
+                    disable="true"/>
 
-            </Button>
+            <Button
+                    fx:id="manageGarmentsButton"
+                    text="🧵 Manage Garments"
+                    prefWidth="170"
+                    onAction="#onManageGarmentsClick"
+                    style="-fx-font-size: 11; -fx-padding: 8;"
+                    disable="true"/>
 
-            <!-- Spacer (fills empty space, pushes buttons to left) -->
             <Region HBox.hgrow="ALWAYS"/>
 
-            <!-- Status Label (optional, for user feedback) -->
             <Label
                     fx:id="statusLabel"
                     text="Ready"
-                    style="-fx-text-fill: #666; -fx-font-size: 10;">
-                <!--
-                fx:id="statusLabel" - Controller can update this text
-                Useful to show: "1 customer selected", "Search found 3 results", etc.
-                -->
-            </Label>
+                    style="-fx-text-fill: #666; -fx-font-size: 10;"/>
         </HBox>
     </bottom>
 
