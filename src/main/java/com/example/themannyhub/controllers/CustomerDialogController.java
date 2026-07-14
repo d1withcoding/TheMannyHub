@@ -158,8 +158,9 @@ public class CustomerDialogController {
     }
     @FXML
     private void onCancelClick() {
-        saved = false;
-        closeDialog();
+        if (onCloseCallback != null) {
+            onCloseCallback.run();
+        }
     }
 
     // ===== REAL-TIME FIELD VALIDATION =====
@@ -249,5 +250,27 @@ public class CustomerDialogController {
     }
 
 // Inside the save method, right before closing the dialog:
+// Add this field
+private Runnable onCloseCallback;
 
+    // Add this method
+    public void setOnCloseCallback(Runnable callback) {
+        this.onCloseCallback = callback;
+    }
+
+    // Modify onSaveClick() - after successful save, call:
+// In the section where you close the dialog, replace stage.close() with:
+    private void close() {
+        if (onCloseCallback != null) {
+            onCloseCallback.run();
+        }
+        // No longer close a stage - the modal overlay handles this
+    }
+
+    // Modify onCancelClick() similarly:
+
+
+// Remove or comment out the Stage reference:
+// Stage stage = (Stage) saveButton.getScene().getWindow();
+// stage.close();
 }

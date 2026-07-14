@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<ScrollPane fitToWidth="true" style="-fx-background-color: -color-bg-subtle;"
+            xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.example.themannyhub.controllers.DashboardHomeController">
+
+    <VBox spacing="20" style="-fx-padding: 25;" VBox.vgrow="ALWAYS">
+
+        <!-- Welcome -->
+        <VBox spacing="5">
+            <Label text="Welcome back!"
+                   style="-fx-font-size: 24px; -fx-font-weight: bold;"/>
+            <Label text="Manage your customers and garments"
+                   style="-fx-text-fill: -color-fg-subtle; -fx-font-size: 13px;"/>
+        </VBox>
+
+        <!-- Quick Search -->
+        <VBox spacing="8">
+            <Label text="QUICK SEARCH"
+                   style="-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: -color-fg-subtle;"/>
+            <TextField fx:id="searchField"
+                       promptText="Search customers by name or phone..."
+                       style="-fx-font-size: 14px; -fx-padding: 10 14 10 14;"/>
+            <VBox fx:id="searchResultsBox" visible="false" managed="false"
+                  style="-fx-background-color: white; -fx-background-radius: 6;
+                         -fx-border-color: -color-border-default; -fx-border-radius: 6;"/>
+        </VBox>
+
+        <!-- Panels -->
+        <HBox spacing="20" VBox.vgrow="ALWAYS">
+
+            <!-- Recent Customers -->
+            <VBox spacing="12" HBox.hgrow="ALWAYS"
+                  style="-fx-background-color: -color-bg-default; -fx-padding: 20;
+                         -fx-background-radius: 8; -fx-border-color: -color-border-default; -fx-border-radius: 8;">
+                <HBox>
+                    <Label text="RECENT CUSTOMERS"
+                           style="-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: -color-fg-subtle;"/>
+                    <Region HBox.hgrow="ALWAYS"/>
+                </HBox>
+                <Separator/>
+                <VBox fx:id="recentCustomersList" spacing="8" VBox.vgrow="ALWAYS">
+                    <Label text="No recent customers yet"
+                           style="-fx-text-fill: -color-fg-subtle; -fx-font-size: 13px; -fx-padding: 15 0 0 0;"/>
+                </VBox>
+            </VBox>
+
+            <!-- Quick Actions -->
+            <VBox spacing="12" prefWidth="260"
+                  style="-fx-background-color: -color-bg-default; -fx-padding: 20;
+                         -fx-background-radius: 8; -fx-border-color: -color-border-default; -fx-border-radius: 8;">
+                <Label text="QUICK ACTIONS"
+                       style="-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: -color-fg-subtle;"/>
+                <Separator/>
+
+                <Button text="New Customer" maxWidth="Infinity" onAction="#addNewCustomer"
+                        style="-fx-background-color: -color-accent-emphasis; -fx-text-fill: white;
+                               -fx-font-size: 13px; -fx-font-weight: bold; -fx-padding: 12;"/>
+
+                <Button text="New Garment" maxWidth="Infinity" onAction="#addNewGarment"
+                        style="-fx-background-color: -color-success-emphasis; -fx-text-fill: white;
+                               -fx-font-size: 13px; -fx-font-weight: bold; -fx-padding: 12;"/>
+
+                <Separator/>
+
+                <Label text="NAVIGATION"
+                       style="-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: -color-fg-subtle;"/>
+
+                <Button text="Customer Management" maxWidth="Infinity" onAction="#openCustomerManagement"
+                        style="-fx-font-size: 13px; -fx-padding: 10;"/>
+
+                <Button text="Garment Management" maxWidth="Infinity" onAction="#openGarmentManagement"
+                        style="-fx-font-size: 13px; -fx-padding: 10;"/>
+            </VBox>
+        </HBox>
+    </VBox>
+</ScrollPane>

@@ -13,6 +13,7 @@ import javafx.scene.control.*;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
+import javafx.scene.Parent;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
@@ -36,6 +37,11 @@ public class GarmentWindowController {
     private GarmentService garmentService;
     private Customer customer;
     private final ObservableList<Garment> garmentList = FXCollections.observableArrayList();
+    // Add this field
+    private DashboardController parentDashboardController;
+
+    // Add this method
+
 
     public void initForCustomer(Customer customer, GarmentService garmentService) {
         this.customer = customer;
@@ -82,24 +88,24 @@ public class GarmentWindowController {
     @FXML
     private void onAddGarmentClick() {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/themannyhub/GarmentDialog.fxml"));
-            Stage dialogStage = new Stage();
-            Scene dialogScene = new Scene(loader.load());
-            ThemeManager.apply(dialogScene);
-            dialogStage.setScene(dialogScene);
-            dialogStage.setTitle("Add Garment for " + customer.getName());
-            dialogStage.initModality(Modality.WINDOW_MODAL);
-            dialogStage.initOwner(addButton.getScene().getWindow());
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(
+                    "/com/example/themannyhub/GarmentDialog.fxml"));
+            Parent dialogRoot = loader.load();
 
             GarmentDialogController controller = loader.getController();
             controller.initForCreate(customer, garmentService);
+            controller.setOnCloseCallback(() -> {
+                if (parentDashboardController != null) {
+                    parentDashboardController.hideModal();
+                    refreshTable();
+                }
+            });
 
-            dialogStage.showAndWait();
-            refreshTable();
+            if (parentDashboardController != null) {
+                parentDashboardController.showModal(dialogRoot);
+            }
         } catch (IOException e) {
-            showAlert(Alert.AlertType.ERROR, "Error", "Could not open the garment dialog: " + e.getMessage());
-        } catch (IllegalArgumentException e) {
-            showAlert(Alert.AlertType.ERROR, "Validation Error", e.getMessage());
+            showAlert(Alert.AlertType.ERROR, "Error", "Could not open garment dialog: " + e.getMessage());
         }
     }
 
@@ -173,5 +179,8 @@ public class GarmentWindowController {
         alert.setHeaderText(null);
         alert.setContentText(message);
         alert.showAndWait();
+    }
+    public void setParentDashboardController(DashboardController controller) {
+        this.parentDashboardController = controller;
     }
 }

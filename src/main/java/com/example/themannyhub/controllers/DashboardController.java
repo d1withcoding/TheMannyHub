@@ -4,6 +4,7 @@ import com.example.themannyhub.models.Customer;
 import com.example.themannyhub.models.Status;
 import com.example.themannyhub.services.AuthService;
 import com.example.themannyhub.services.CustomerService;
+import com.example.themannyhub.services.GarmentService;
 import com.example.themannyhub.theme.ThemeManager;
 import javafx.animation.PauseTransition;
 import javafx.application.Platform;
@@ -11,9 +12,9 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -23,105 +24,298 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 
 public class DashboardController {
+
+    // ===== FXML Injected Fields =====
     @FXML private Label userLabel;
     @FXML private TextField searchField;
     @FXML private VBox searchResultsBox;
     @FXML private VBox recentCustomersList;
+    @FXML private StackPane contentArea;
+    @FXML private StackPane modalOverlay;
+    @FXML private Button dashboardNavBtn;
+    @FXML private Button customersNavBtn;
+    @FXML private Button garmentsNavBtn;
 
+    // ===== Services =====
     private CustomerService customerService;
+    private GarmentService garmentService;
     private AuthService authService;
+
+    // ===== State =====
     private LinkedList<Customer> recentCustomers = new LinkedList<>();
     private PauseTransition searchDebounce;
+    private Parent dashboardHomeView;  // cached dashboard home content
 
+    // ===== Initialization =====
     @FXML
     public void initialize() {
         customerService = new CustomerService();
+        garmentService = new GarmentService();
         authService = new AuthService();
 
-        // Set welcome message using instance method
         if (authService.getCurrentUser() != null) {
             userLabel.setText("Welcome, " + authService.getCurrentUser().getUsername());
         } else {
             userLabel.setText("Welcome, User");
         }
 
-        // Set up search debounce
-        searchDebounce = new PauseTransition(Duration.millis(300));
-        searchDebounce.setOnFinished(event -> performSearch());
+        // Load dashboard home view after FXML is loaded
+        Platform.runLater(() -> loadDashboardHome());
+    }
 
-        searchField.textProperty().addListener((observable, oldValue, newValue) -> {
-            searchDebounce.stop();
-            if (newValue.isEmpty()) {
-                hideSearchResults();
-            } else {
-                searchDebounce.playFromStart();
+    // ===== Navigation =====
+
+    @FXML
+    private void onDashboardNavClick() {
+        highlightNavButton(dashboardNavBtn);
+        loadDashboardHome();
+    }
+
+    @FXML
+    public void onCustomersNavClick() {
+        highlightNavButton(customersNavBtn);
+        loadCustomerManagement();
+    }
+
+    @FXML
+    public void onGarmentsNavClick() {
+        // Option A: Show customer picker first
+        showCustomerPickerForGarments();
+    }
+
+    private void highlightNavButton(Button active) {
+        String activeStyle = "-fx-background-color: -color-accent-emphasis; -fx-text-fill: white; " +
+                "-fx-font-size: 13px; -fx-padding: 9 14 9 14; -fx-background-radius: 6; " +
+                "-fx-alignment: CENTER_LEFT;";
+        String inactiveStyle = "-fx-background-color: transparent; -fx-font-size: 13px; " +
+                "-fx-padding: 9 14 9 14; -fx-background-radius: 6; " +
+                "-fx-alignment: CENTER_LEFT;";
+        dashboardNavBtn.setStyle(inactiveStyle);
+        customersNavBtn.setStyle(inactiveStyle);
+        garmentsNavBtn.setStyle(inactiveStyle);
+        active.setStyle(activeStyle);
+    }
+
+    // ===== View Loading =====
+
+    private void loadDashboardHome() {
+        try {
+            // Reload the dashboard home view (search + recent customers + quick actions)
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(
+                    "/com/example/themannyhub/DashboardHome.fxml"));
+            Parent homeView = loader.load();
+            DashboardHomeController homeController = loader.getController();
+            homeController.setParentDashboardController(this);
+
+            contentArea.getChildren().setAll(homeView);
+
+            // Refresh recent customers in the home view
+            List<Customer> all = customerService.getAllCustomers();
+            if (!all.isEmpty()) {
+                homeController.setRecentCustomers(
+                        all.subList(0, Math.min(8, all.size())));
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void loadCustomerManagement() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(
+                    "/com/example/themannyhub/MainWindow.fxml"));
+            Parent customerView = loader.load();
+            MainWindowController controller = loader.getController();
+            controller.setDashboardController(this);
+
+            contentArea.getChildren().setAll(customerView);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void loadGarmentManagement(Customer customer) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(
+                    "/com/example/themannyhub/GarmentWindow.fxml"));
+            Parent garmentView = loader.load();
+            GarmentWindowController controller = loader.getController();
+            controller.setParentDashboardController(this);
+            controller.initForCustomer(customer, garmentService);
+
+            contentArea.getChildren().setAll(garmentView);
+            highlightNavButton(garmentsNavBtn);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    // ===== Customer Picker for Garment Management =====
+
+    private void showCustomerPickerForGarments() {
+        List<Customer> allCustomers = customerService.getAllCustomers();
+
+        if (allCustomers.isEmpty()) {
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("No Customers");
+            alert.setHeaderText(null);
+            alert.setContentText("Please add a customer first before managing garments.");
+            alert.showAndWait();
+            return;
+        }
+
+        // Build a simple choice dialog
+        ChoiceDialog<Customer> dialog = new ChoiceDialog<>(allCustomers.get(0), allCustomers);
+        dialog.setTitle("Select Customer");
+        dialog.setHeaderText("Choose a customer to view garments for:");
+        dialog.setContentText("Customer:");
+
+        // Customize how customer names appear in the dropdown
+        // ChoiceDialog uses toString(), so we can't easily customize without a custom dialog.
+        // Instead, let's use a ListView approach:
+        Dialog<Customer> customDialog = new Dialog<>();
+        customDialog.setTitle("Select Customer");
+        customDialog.setHeaderText("Choose a customer to view garments for:");
+
+        ButtonType selectButtonType = new ButtonType("Select", ButtonBar.ButtonData.OK_DONE);
+        customDialog.getDialogPane().getButtonTypes().addAll(selectButtonType, ButtonType.CANCEL);
+
+        ListView<Customer> listView = new ListView<>();
+        listView.getItems().addAll(allCustomers);
+        listView.setCellFactory(lv -> new ListCell<Customer>() {
+            @Override
+            protected void updateItem(Customer c, boolean empty) {
+                super.updateItem(c, empty);
+                if (empty || c == null) {
+                    setText(null);
+                } else {
+                    setText(c.getName() + " (" + c.getPhone() + ")");
+                }
             }
         });
 
-        // Hide search results when focus leaves the search field
-        searchField.focusedProperty().addListener((observable, oldValue, newValue) -> {
-            if (!newValue) {
-                PauseTransition delay = new PauseTransition(Duration.millis(200));
-                delay.setOnFinished(event -> hideSearchResults());
-                delay.play();
+        customDialog.getDialogPane().setContent(listView);
+        customDialog.setResultConverter(buttonType -> {
+            if (buttonType == selectButtonType) {
+                return listView.getSelectionModel().getSelectedItem();
+            }
+            return null;
+        });
+
+        Optional<Customer> result = customDialog.showAndWait();
+        result.ifPresent(this::loadGarmentManagement);
+    }
+
+    // ===== In-Window Modal Overlay =====
+
+    /**
+     * Shows a modal overlay with the given content on top of the main view.
+     * The overlay dims the background and centers the dialog card.
+     */
+    public void showModal(Parent modalContent) {
+        // Wrap content in a styled card
+        VBox card = new VBox(modalContent);
+        card.setStyle("-fx-background-color: -color-bg-default; -fx-background-radius: 12; " +
+                "-fx-padding: 0; -fx-max-width: 550; -fx-max-height: 700; " +
+                "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.25), 20, 0, 0, 8);");
+        card.setMaxWidth(550);
+        card.setMaxHeight(700);
+
+        StackPane.setAlignment(card, javafx.geometry.Pos.CENTER);
+        modalOverlay.getChildren().setAll(card);
+        modalOverlay.setVisible(true);
+        modalOverlay.setManaged(true);
+    }
+
+    /**
+     * Hides the modal overlay.
+     */
+    public void hideModal() {
+        modalOverlay.setVisible(false);
+        modalOverlay.setManaged(false);
+        modalOverlay.getChildren().clear();
+    }
+
+    // ===== Actions (called from sidebar and dashboard home) =====
+
+    @FXML
+    public void addNewCustomer() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(
+                    "/com/example/themannyhub/CustomerDialog.fxml"));
+            Parent dialogRoot = loader.load();
+
+            CustomerDialogController controller = loader.getController();
+            controller.setDashboardController(this);
+            controller.setOnCloseCallback(() -> hideModal());
+
+            showModal(dialogRoot);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @FXML
+    public void addNewGarment() {
+        // Need to pick a customer first for new garment
+        List<Customer> allCustomers = customerService.getAllCustomers();
+        if (allCustomers.isEmpty()) {
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("No Customers");
+            alert.setHeaderText(null);
+            alert.setContentText("Please add a customer first before adding a garment.");
+            alert.showAndWait();
+            return;
+        }
+
+        // Use the same picker approach
+        ChoiceDialog<Customer> dialog = new ChoiceDialog<>(allCustomers.get(0), allCustomers);
+        dialog.setTitle("Select Customer");
+        dialog.setHeaderText("Choose a customer for the new garment:");
+        dialog.setContentText("Customer:");
+
+        Optional<Customer> result = dialog.showAndWait();
+        result.ifPresent(customer -> {
+            try {
+                FXMLLoader loader = new FXMLLoader(getClass().getResource(
+                        "/com/example/themannyhub/GarmentDialog.fxml"));
+                Parent dialogRoot = loader.load();
+
+                GarmentDialogController controller = loader.getController();
+                controller.initForCreate(customer, garmentService);
+                controller.setOnCloseCallback(() -> hideModal());
+
+                showModal(dialogRoot);
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         });
     }
 
-    public void setRecentCustomers(List<Customer> customers) {
-        recentCustomers.clear();
-        if (customers != null) {
-            recentCustomers.addAll(customers);
-        }
-        refreshRecentCustomersList();
-    }
+    /**
+     * Opens the customer edit dialog for a specific customer (from search/recent clicks).
+     */
+    public void openCustomerDialog(Customer customer) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(
+                    "/com/example/themannyhub/CustomerDialog.fxml"));
+            Parent dialogRoot = loader.load();
 
-    private void refreshRecentCustomersList() {
-        recentCustomersList.getChildren().clear();
+            CustomerDialogController controller = loader.getController();
+            controller.setCustomer(customer);
+            controller.setDashboardController(this);
+            controller.setOnCloseCallback(() -> hideModal());
 
-        if (recentCustomers.isEmpty()) {
-            Label emptyLabel = new Label("No recent customers yet");
-            emptyLabel.setStyle("-fx-text-fill: #95a5a6; -fx-font-size: 14px; -fx-padding: 20 0 0 0;");
-            recentCustomersList.getChildren().add(emptyLabel);
-        } else {
-            int count = 0;
-            for (Customer customer : recentCustomers) {
-                if (count >= 8) break;
-                recentCustomersList.getChildren().add(createCustomerRow(customer));
-                count++;
-            }
+            showModal(dialogRoot);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
-    private VBox createCustomerRow(Customer customer) {
-        VBox row = new VBox(5);
-        row.setStyle("-fx-padding: 10; -fx-background-radius: 5; -fx-cursor: hand;");
-
-        Label nameLabel = new Label(customer.getName());
-        nameLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;");
-
-        HBox details = new HBox(10);
-        Label phoneLabel = new Label(customer.getPhone());
-        phoneLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #7f8c8d;");
-
-        String statusColor = customer.getStatus() == Status.ACTIVE ? "#27ae60" : "#e74c3c";
-        Label statusLabel = new Label(customer.getStatus().toString());
-        statusLabel.setStyle("-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: " + statusColor + ";");
-
-        details.getChildren().addAll(phoneLabel, statusLabel);
-        row.getChildren().addAll(nameLabel, details);
-
-        row.setOnMouseEntered(event ->
-                row.setStyle("-fx-padding: 10; -fx-background-radius: 5; -fx-cursor: hand; -fx-background-color: #ebf5fb;"));
-        row.setOnMouseExited(event ->
-                row.setStyle("-fx-padding: 10; -fx-background-radius: 5; -fx-cursor: hand;"));
-
-        row.setOnMouseClicked(event -> openCustomerDialog(customer));
-
-        return row;
-    }
+    // ===== Search =====
 
     private void performSearch() {
         String query = searchField.getText().trim();
@@ -129,42 +323,30 @@ public class DashboardController {
             hideSearchResults();
             return;
         }
-
-        // Search by name (CustomerService.searchCustomers may not exist)
-        // Use getAllCustomers and filter manually
-        List<Customer> allCustomers = customerService.getAllCustomers();
+        List<Customer> all = customerService.getAllCustomers();
         List<Customer> results = new ArrayList<>();
-        String lowerQuery = query.toLowerCase();
-
-        for (Customer c : allCustomers) {
-            if (c.getName().toLowerCase().contains(lowerQuery) ||
-                    c.getPhone().contains(lowerQuery)) {
+        String lower = query.toLowerCase();
+        for (Customer c : all) {
+            if (c.getName().toLowerCase().contains(lower) ||
+                    c.getPhone().contains(lower)) {
                 results.add(c);
             }
         }
-
         showSearchResults(results);
     }
 
     private void showSearchResults(List<Customer> results) {
         searchResultsBox.getChildren().clear();
-
         if (results.isEmpty()) {
             Label noResults = new Label("No customers found");
-            noResults.setStyle("-fx-text-fill: #95a5a6; -fx-font-size: 13px; -fx-padding: 12 15 12 15;");
+            noResults.setStyle("-fx-text-fill: -color-fg-subtle; -fx-font-size: 13px; -fx-padding: 12 15 12 15;");
             searchResultsBox.getChildren().add(noResults);
         } else {
-            for (Customer customer : results) {
-                VBox resultRow = createCustomerRow(customer);
-                resultRow.setOnMouseClicked(event -> {
-                    hideSearchResults();
-                    searchField.clear();
-                    openCustomerDialog(customer);
-                });
-                searchResultsBox.getChildren().add(resultRow);
+            for (Customer c : results) {
+                VBox row = createSearchResultRow(c);
+                searchResultsBox.getChildren().add(row);
             }
         }
-
         searchResultsBox.setVisible(true);
         searchResultsBox.setManaged(true);
     }
@@ -175,153 +357,88 @@ public class DashboardController {
         searchResultsBox.getChildren().clear();
     }
 
-    private void openCustomerDialog(Customer customer) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource(
-                    "/com/example/themannyhub/CustomerDialog.fxml"));
-            Parent root = loader.load();
+    private VBox createSearchResultRow(Customer c) {
+        VBox row = new VBox(5);
+        row.setStyle("-fx-padding: 10; -fx-cursor: hand;");
+        row.setOnMouseEntered(e -> row.setStyle("-fx-padding: 10; -fx-cursor: hand; -fx-background-color: -color-neutral-subtle;"));
+        row.setOnMouseExited(e -> row.setStyle("-fx-padding: 10; -fx-cursor: hand;"));
 
-            CustomerDialogController controller = loader.getController();
-            controller.setCustomer(customer);
-            controller.setDashboardController(this);
+        Label name = new Label(c.getName());
+        name.setStyle("-fx-font-size: 14px; -fx-font-weight: bold;");
 
-            Stage stage = new Stage();
-            stage.setTitle("Edit Customer - " + customer.getName());
-            Scene scene1 = new Scene(root);
+        HBox details = new HBox(10);
+        Label phone = new Label(c.getPhone());
+        phone.setStyle("-fx-font-size: 12px; -fx-text-fill: -color-fg-subtle;");
 
-            ThemeManager.apply(scene1);
+        String color = c.getStatus() == Status.ACTIVE ? "-color-success-emphasis" : "-color-danger-emphasis";
+        Label status = new Label(c.getStatus().toString());
+        status.setStyle("-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: " + color + ";");
 
-            stage.setScene(scene1);
-            stage.initModality(Modality.APPLICATION_MODAL);
-            stage.showAndWait();
+        details.getChildren().addAll(phone, status);
+        row.getChildren().addAll(name, details);
 
-            refreshAfterEdit();
+        row.setOnMouseClicked(e -> {
+            hideSearchResults();
+            searchField.clear();
+            openCustomerDialog(c);
+        });
+        return row;
+    }
 
-        } catch (IOException e) {
-            e.printStackTrace();
+    // ===== Recent Customers (for DashboardHomeController) =====
+
+    public void setRecentCustomers(List<Customer> customers) {
+        recentCustomers.clear();
+        if (customers != null) {
+            recentCustomers.addAll(customers);
         }
     }
 
-    private void refreshAfterEdit() {
-        List<Customer> allCustomers = customerService.getAllCustomers();
+    public List<Customer> getRecentCustomers() {
+        return new ArrayList<>(recentCustomers);
+    }
 
-        List<Customer> updatedRecents = new ArrayList<>();
-        for (Customer recent : recentCustomers) {
-            for (Customer fresh : allCustomers) {
-                if (fresh.getPhone().equals(recent.getPhone())) {
-                    updatedRecents.add(fresh);
-                    break;
-                }
+    public void addRecentCustomer(Customer customer) {
+        recentCustomers.removeIf(c -> c.getPhone().equals(customer.getPhone()));
+        recentCustomers.addFirst(customer);
+        while (recentCustomers.size() > 8) {
+            recentCustomers.removeLast();
+        }
+    }
+
+    // ===== Refresh after edits =====
+
+    public void refreshAfterCustomerEdit() {
+        // Reload whatever view is currently showing
+        if (!contentArea.getChildren().isEmpty()) {
+            Parent current = (Parent) contentArea.getChildren().get(0);
+            // Check if it's MainWindow by looking for a known node
+            // Simple approach: reload customer management if that's what's showing
+            if (current.lookup("#customerTable") != null) {
+                loadCustomerManagement();
+            } else {
+                loadDashboardHome();
             }
         }
-        recentCustomers.clear();
-        recentCustomers.addAll(updatedRecents);
-        refreshRecentCustomersList();
     }
 
-    @FXML
-    private void addNewCustomer() {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource(
-                    "/com/example/themannyhub/CustomerDialog.fxml"));
-            Parent root = loader.load();
-
-            CustomerDialogController controller = loader.getController();
-            controller.setDashboardController(this);
-
-            Stage stage = new Stage();
-            stage.setTitle("Add New Customer");
-            Scene scene2 = new Scene(root);
-
-            ThemeManager.apply(scene2);
-
-            stage.setScene(scene2);
-            stage.initModality(Modality.APPLICATION_MODAL);
-            stage.showAndWait();
-
-            refreshAfterEdit();
-
-        } catch (IOException e) {
-            e.printStackTrace();
+    public void refreshAfterGarmentEdit() {
+        // Reload garment view if showing
+        if (!contentArea.getChildren().isEmpty()) {
+            Parent current = (Parent) contentArea.getChildren().get(0);
+            if (current.lookup("#garmentTable") != null) {
+                // Re-trigger garment view reload - but we need the customer context
+                // This is handled by GarmentWindowController calling back
+            }
         }
     }
 
-    @FXML
-    private void addNewGarment() {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource(
-                    "/com/example/themannyhub/GarmentDialog.fxml"));
-            Parent root = loader.load();
-
-            Stage stage = new Stage();
-            stage.setTitle("Add New Garment");
-            Scene scene3 = new Scene(root);
-
-            ThemeManager.apply(scene3);
-
-            stage.setScene(scene3);
-            stage.initModality(Modality.APPLICATION_MODAL);
-            stage.show();
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    @FXML
-    private void openCustomerManagement() {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource(
-                    "/com/example/themannyhub/MainWindow.fxml"));
-            Parent root = loader.load();
-
-            MainWindowController controller = loader.getController();
-            controller.setDashboardController(this);
-
-            Stage stage = new Stage();
-            stage.setTitle("Customer Management");
-            Scene scene4 = new Scene(root, 1100, 600);
-
-            ThemeManager.apply(scene4);
-
-            stage.setScene(scene4);
-            stage.setMinWidth(800);
-            stage.setMinHeight(400);
-            stage.initModality(Modality.NONE);
-            stage.show();
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    @FXML
-    private void openGarmentManagement() {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource(
-                    "/com/example/themannyhub/GarmentWindow.fxml"));
-            Parent root = loader.load();
-
-            Stage stage = new Stage();
-            stage.setTitle("Garment Management");
-            Scene scene5 = new Scene(root);
-
-            ThemeManager.apply(scene5);
-
-            stage.setScene(scene5);
-            stage.show();
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
+    // ===== Logout =====
 
     @FXML
     private void handleLogout() {
-        // Use instance method
         authService.logout();
-
-        Stage stage = (Stage) userLabel.getScene().getWindow();
+        Stage stage = (Stage) contentArea.getScene().getWindow();
         stage.close();
 
         Platform.runLater(() -> {
@@ -341,11 +458,14 @@ public class DashboardController {
 
                 LoginController loginController = loginLoader.getController();
                 if (loginController != null && loginController.isLoginSuccessful()) {
-                    refreshDashboard();
+                    Platform.runLater(() -> {
+                        Stage newDashboardStage = new Stage();
+                        // Re-launch dashboard
+                        // This is simplified; full re-launch logic in Launcher
+                    });
                 } else {
                     Platform.exit();
                 }
-
             } catch (IOException e) {
                 e.printStackTrace();
                 Platform.exit();
@@ -353,25 +473,7 @@ public class DashboardController {
         });
     }
 
-    private void refreshDashboard() {
-        List<Customer> allCustomers = customerService.getAllCustomers();
-        if (!allCustomers.isEmpty()) {
-            setRecentCustomers(allCustomers.subList(0, Math.min(8, allCustomers.size())));
-        }
-
-        if (authService.getCurrentUser() != null) {
-            userLabel.setText("Welcome, " + authService.getCurrentUser().getUsername());
-        } else {
-            userLabel.setText("Welcome, User");
-        }
-    }
-
-    public void addRecentCustomer(Customer customer) {
-        recentCustomers.removeIf(c -> c.getPhone().equals(customer.getPhone()));
-        recentCustomers.addFirst(customer);
-        while (recentCustomers.size() > 8) {
-            recentCustomers.removeLast();
-        }
-        refreshRecentCustomersList();
-    }
+    // ===== Getters for child controllers =====
+    public CustomerService getCustomerService() { return customerService; }
+    public GarmentService getGarmentService() { return garmentService; }
 }

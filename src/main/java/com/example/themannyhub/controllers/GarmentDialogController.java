@@ -227,8 +227,9 @@ public class GarmentDialogController {
      * Closes the dialog window.
      */
     private void close() {
-        Stage stage = (Stage) saveButton.getScene().getWindow();
-        stage.close();
+        if (onCloseCallback != null) {
+            onCloseCallback.run();
+        }
     }
 
     /**
@@ -393,4 +394,16 @@ public class GarmentDialogController {
         }
         return Double.toString(d);
     }
+    // Add this field
+    private Runnable onCloseCallback;
+
+    // Add this method
+    public void setOnCloseCallback(Runnable callback) {
+        this.onCloseCallback = callback;
+    }
+
+    // Replace the close() method:
+
+
+// onCancelClick() should also use close()
 }
