@@ -234,7 +234,6 @@ public class MainWindowController {
             garmentStage.initOwner(manageGarmentsButton.getScene().getWindow());
 
             GarmentWindowController controller = loader.getController();
-            controller.initForCustomer(selectedCustomer, garmentService);
 
             garmentStage.showAndWait();
         } catch (IOException e) {

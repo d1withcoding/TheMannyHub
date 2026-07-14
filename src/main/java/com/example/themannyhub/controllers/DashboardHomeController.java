@@ -13,11 +13,21 @@ import javafx.util.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.example.themannyhub.services.CustomerService;
+import com.example.themannyhub.services.GarmentService;
+import com.example.themannyhub.models.Customer;
+import com.example.themannyhub.models.Status;
+import java.util.List;
+
 public class DashboardHomeController {
 
     @FXML private TextField searchField;
     @FXML private VBox searchResultsBox;
     @FXML private VBox recentCustomersList;
+    @FXML private Label totalCustomersMetric;
+    @FXML private Label activeCustomersMetric;
+    @FXML private Label totalGarmentsMetric;
+    @FXML private Label inactiveCustomersMetric;
 
     private DashboardController parentDashboardController;
     private PauseTransition searchDebounce;
@@ -38,6 +48,7 @@ public class DashboardHomeController {
 
     public void setParentDashboardController(DashboardController controller) {
         this.parentDashboardController = controller;
+        refreshMetrics();
     }
 
     public void setRecentCustomers(List<Customer> customers) {
@@ -147,5 +158,20 @@ public class DashboardHomeController {
     @FXML
     private void openGarmentManagement() {
         if (parentDashboardController != null) parentDashboardController.onGarmentsNavClick();
+    }
+    public void refreshMetrics() {
+        if (parentDashboardController == null) return;
+
+        CustomerService cs = parentDashboardController.getCustomerService();
+        GarmentService gs = parentDashboardController.getGarmentService();
+
+        List<Customer> all = cs.getAllCustomers();
+        long active = all.stream().filter(c -> c.getStatus() == Status.ACTIVE).count();
+        long inactive = all.size() - active;
+
+        totalCustomersMetric.setText(String.valueOf(all.size()));
+        activeCustomersMetric.setText(String.valueOf(active));
+        totalGarmentsMetric.setText(String.valueOf(gs.getGarmentCount()));
+        inactiveCustomersMetric.setText(String.valueOf(inactive));
     }
 }

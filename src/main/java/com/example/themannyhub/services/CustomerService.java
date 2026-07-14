@@ -199,4 +199,11 @@ public class CustomerService {
                 .filter(c -> c.getName().toLowerCase().contains(lowerQuery))
                 .collect(Collectors.toList());
     }
+    public Customer getCustomerById(int id) {
+        List<Customer> all = getAllCustomers();
+        for (Customer c : all) {
+            if (c.getId() == id) return c;
+        }
+        return null;
+    }
 }

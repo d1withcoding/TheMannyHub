@@ -1,80 +1,83 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<ScrollPane fitToWidth="true" style="-fx-background-color: -color-bg-subtle;"
+<ScrollPane fitToWidth="true"
+            styleClass="clean-scroll"
+            style="-fx-background-color: #F8FAFC;"
             xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
             fx:controller="com.example.themannyhub.controllers.DashboardHomeController">
 
-    <VBox spacing="20" style="-fx-padding: 25;" VBox.vgrow="ALWAYS">
+    <VBox spacing="24" style="-fx-padding: 0;">
 
-        <!-- Welcome -->
-        <VBox spacing="5">
-            <Label text="Welcome back!"
-                   style="-fx-font-size: 24px; -fx-font-weight: bold;"/>
-            <Label text="Manage your customers and garments"
-                   style="-fx-text-fill: -color-fg-subtle; -fx-font-size: 13px;"/>
-        </VBox>
-
-        <!-- Quick Search -->
-        <VBox spacing="8">
-            <Label text="QUICK SEARCH"
-                   style="-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: -color-fg-subtle;"/>
+        <!-- Header Row: Title + Search -->
+        <HBox style="-fx-min-height: 72;" alignment="CENTER_LEFT">
+            <Label text="Dashboard"
+                   style="-fx-font-size: 28px; -fx-font-weight: 700; -fx-text-fill: #111827;"/>
+            <Region HBox.hgrow="ALWAYS"/>
             <TextField fx:id="searchField"
-                       promptText="Search customers by name or phone..."
-                       style="-fx-font-size: 14px; -fx-padding: 10 14 10 14;"/>
-            <VBox fx:id="searchResultsBox" visible="false" managed="false"
-                  style="-fx-background-color: white; -fx-background-radius: 6;
-                         -fx-border-color: -color-border-default; -fx-border-radius: 6;"/>
-        </VBox>
+                       promptText="Search customers..."
+                       styleClass="input-field"
+                       prefWidth="320"/>
+        </HBox>
 
-        <!-- Panels -->
-        <HBox spacing="20" VBox.vgrow="ALWAYS">
+        <!-- Metric Cards Row -->
+        <HBox spacing="24">
+            <VBox styleClass="metric-card" HBox.hgrow="ALWAYS">
+                <Label fx:id="totalCustomersMetric" text="0" styleClass="metric-value"/>
+                <Label text="TOTAL CUSTOMERS" styleClass="metric-label"/>
+            </VBox>
+            <VBox styleClass="metric-card" HBox.hgrow="ALWAYS">
+                <Label fx:id="activeCustomersMetric" text="0" styleClass="metric-value"
+                       style="-fx-text-fill: #22C55E;"/>
+                <Label text="ACTIVE" styleClass="metric-label"/>
+            </VBox>
+            <VBox styleClass="metric-card" HBox.hgrow="ALWAYS">
+                <Label fx:id="totalGarmentsMetric" text="0" styleClass="metric-value"
+                       style="-fx-text-fill: #2563EB;"/>
+                <Label text="GARMENTS" styleClass="metric-label"/>
+            </VBox>
+            <VBox styleClass="metric-card" HBox.hgrow="ALWAYS">
+                <Label fx:id="inactiveCustomersMetric" text="0" styleClass="metric-value"
+                       style="-fx-text-fill: #F59E0B;"/>
+                <Label text="INACTIVE" styleClass="metric-label"/>
+            </VBox>
+        </HBox>
 
-            <!-- Recent Customers -->
-            <VBox spacing="12" HBox.hgrow="ALWAYS"
-                  style="-fx-background-color: -color-bg-default; -fx-padding: 20;
-                         -fx-background-radius: 8; -fx-border-color: -color-border-default; -fx-border-radius: 8;">
-                <HBox>
-                    <Label text="RECENT CUSTOMERS"
-                           style="-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: -color-fg-subtle;"/>
+        <!-- Search Results (hidden) -->
+        <VBox fx:id="searchResultsBox" visible="false" managed="false"
+              styleClass="card" style="-fx-padding: 0;"/>
+
+        <!-- Main Content: 70/30 Split -->
+        <HBox spacing="24" VBox.vgrow="ALWAYS">
+
+            <!-- Left: Recent Customers -->
+            <VBox spacing="16" HBox.hgrow="ALWAYS" styleClass="card">
+                <HBox alignment="CENTER_LEFT">
+                    <Label text="Recent Customers" styleClass="card-title"/>
                     <Region HBox.hgrow="ALWAYS"/>
+                    <Button text="View All" styleClass="btn-secondary"
+                            style="-fx-min-height: 36; -fx-font-size: 13px;"
+                            onAction="#openCustomerManagement"/>
                 </HBox>
-                <Separator/>
-                <VBox fx:id="recentCustomersList" spacing="8" VBox.vgrow="ALWAYS">
-                    <Label text="No recent customers yet"
-                           style="-fx-text-fill: -color-fg-subtle; -fx-font-size: 13px; -fx-padding: 15 0 0 0;"/>
+                <Separator styleClass="divider"/>
+                <VBox fx:id="recentCustomersList" spacing="4" VBox.vgrow="ALWAYS">
+                    <Label text="No recent customers"
+                           style="-fx-text-fill: #6B7280; -fx-font-size: 14px; -fx-padding: 20 0 0 0;"/>
                 </VBox>
             </VBox>
 
-            <!-- Quick Actions -->
-            <VBox spacing="12" prefWidth="260"
-                  style="-fx-background-color: -color-bg-default; -fx-padding: 20;
-                         -fx-background-radius: 8; -fx-border-color: -color-border-default; -fx-border-radius: 8;">
-                <Label text="QUICK ACTIONS"
-                       style="-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: -color-fg-subtle;"/>
-                <Separator/>
-
-                <Button text="New Customer" maxWidth="Infinity" onAction="#addNewCustomer"
-                        style="-fx-background-color: -color-accent-emphasis; -fx-text-fill: white;
-                               -fx-font-size: 13px; -fx-font-weight: bold; -fx-padding: 12;"/>
-
-                <Button text="New Garment" maxWidth="Infinity" onAction="#addNewGarment"
-                        style="-fx-background-color: -color-success-emphasis; -fx-text-fill: white;
-                               -fx-font-size: 13px; -fx-font-weight: bold; -fx-padding: 12;"/>
-
-                <Separator/>
-
-                <Label text="NAVIGATION"
-                       style="-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: -color-fg-subtle;"/>
-
-                <Button text="Customer Management" maxWidth="Infinity" onAction="#openCustomerManagement"
-                        style="-fx-font-size: 13px; -fx-padding: 10;"/>
-
-                <Button text="Garment Management" maxWidth="Infinity" onAction="#openGarmentManagement"
-                        style="-fx-font-size: 13px; -fx-padding: 10;"/>
+            <!-- Right: Quick Actions -->
+            <VBox spacing="16" prefWidth="300" styleClass="card">
+                <Label text="Quick Actions" styleClass="card-title"/>
+                <Separator styleClass="divider"/>
+                <VBox spacing="12">
+                    <Button text="New Customer" maxWidth="Infinity"
+                            styleClass="btn-primary" onAction="#addNewCustomer"/>
+                    <Button text="New Garment" maxWidth="Infinity"
+                            styleClass="btn-secondary" onAction="#addNewGarment"/>
+                </VBox>
             </VBox>
         </HBox>
     </VBox>

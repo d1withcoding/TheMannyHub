@@ -12,6 +12,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.scene.text.Font;
 
 import java.util.List;
 
@@ -31,6 +32,13 @@ public class Launcher extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
+        // Load custom fonts
+        Font.loadFont(getClass().getResourceAsStream("/fonts/BebasNeue-Regular.ttf"), 24);
+        Font.loadFont(getClass().getResourceAsStream("/fonts/BricolageGrotesque[wght].ttf"), 14);
+
+        // Apply AtlantaFX theme
+        Application.setUserAgentStylesheet(new CupertinoLight().getUserAgentStylesheet());
+
         // Show login dialog first
         if (!showLoginDialog()) {
             System.exit(0);

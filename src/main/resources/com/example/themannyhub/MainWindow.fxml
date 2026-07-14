@@ -3,113 +3,67 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<BorderPane
-        xmlns="http://javafx.com/javafx"
-        xmlns:fx="http://javafx.com/fxml"
-        fx:controller="com.example.themannyhub.controllers.MainWindowController">
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.example.themannyhub.controllers.MainWindowController"
+            stylesheets="@css/application.css"
+            style="-fx-background-color: #F8FAFC;">
 
-    <!-- ===================================================================
-         LEFT SIDEBAR (Visual only - no navigation logic)
-         =================================================================== -->
-    <left>
-        <VBox styleClass="sidebar" prefWidth="200" spacing="5"
-              style="-fx-padding: 15 0 15 0; -fx-background-color: -color-bg-subtle; -fx-border-color: -color-border-default; -fx-border-width: 0 1 0 0;">
-
-            <Label text="The Manny Hub"
-                   style="-fx-font-size: 16px; -fx-font-weight: bold;
-                          -fx-padding: 0 15 15 15;"/>
-
-            <Separator/>
-
-            <VBox spacing="3" style="-fx-padding: 10 8 0 8;">
-                <Label text="NAVIGATION"
-                       style="-fx-font-size: 10px; -fx-font-weight: bold;
-                              -fx-text-fill: -color-fg-subtle; -fx-padding: 0 0 6 8;"/>
-
-                <!-- These are just visual labels, not functional buttons -->
-                <Label text="  Customers"
-                       style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-padding: 8 12 8 12;
-                              -fx-background-color: -color-accent-emphasis; -fx-text-fill: white;
-                              -fx-background-radius: 6;"/>
-            </VBox>
-
-            <Region VBox.vgrow="ALWAYS"/>
-        </VBox>
-    </left>
-
-    <!-- ===================================================================
-         TOP SECTION: Header, Search, and Filter
-         =================================================================== -->
+    <!-- Header -->
     <top>
-        <VBox spacing="12" style="-fx-padding: 15; -fx-border-color: -color-border-default; -fx-border-width: 0 0 1 0;">
-
-            <Label text="Customer Management"
-                   style="-fx-font-size: 20px; -fx-font-weight: bold;"/>
-
-            <HBox spacing="10" alignment="CENTER_LEFT">
-                <Label text="Search:" style="-fx-min-width: 60;"/>
-                <TextField fx:id="searchTextField"
-                           promptText="Type customer name..."
-                           styleClass="search-field"
-                           HBox.hgrow="ALWAYS"
-                           onKeyReleased="#onSearchTextChange"/>
-            </HBox>
-
-            <HBox spacing="10" alignment="CENTER_LEFT">
-                <Label text="Status:" style="-fx-min-width: 60;"/>
-                <ComboBox fx:id="statusFilterComboBox"
-                          prefWidth="150"
-                          onAction="#onStatusFilterChange"/>
-            </HBox>
-        </VBox>
+        <HBox styleClass="header" spacing="16">
+            <Label text="Customers" styleClass="header-title"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <TextField fx:id="searchTextField" promptText="Search customers..."
+                       styleClass="input-field" prefWidth="300"
+                       onKeyReleased="#onSearchTextChange"/>
+            <ComboBox fx:id="statusFilterComboBox" prefWidth="150"
+                      styleClass="input-field"
+                      style="-fx-min-height: 48; -fx-padding: 0 16 0 16;"
+                      onAction="#onStatusFilterChange"/>
+            <Button text="Add Customer" styleClass="btn-primary"
+                    onAction="#onAddCustomerClick"/>
+        </HBox>
     </top>
 
-    <!-- ===================================================================
-         CENTER SECTION: Customer Table
-         =================================================================== -->
+    <!-- Table -->
     <center>
-        <TableView fx:id="customerTable" style="-fx-padding: 10;">
-            <columns>
-                <TableColumn fx:id="idColumn" text="ID" prefWidth="40" sortable="false"/>
-                <TableColumn fx:id="nameColumn" text="Name" prefWidth="120"/>
-                <TableColumn fx:id="phoneColumn" text="Phone" prefWidth="100"/>
-                <TableColumn fx:id="waistColumn" text="Waist (in)" prefWidth="80"/>
-                <TableColumn fx:id="inseamColumn" text="Inseam (in)" prefWidth="80"/>
-                <TableColumn fx:id="hipColumn" text="Hip (in)" prefWidth="80"/>
-                <TableColumn fx:id="thighColumn" text="Thigh (in)" prefWidth="80"/>
-                <TableColumn fx:id="frontRiseColumn" text="Front Rise (in)" prefWidth="90"/>
-                <TableColumn fx:id="backRiseColumn" text="Back Rise (in)" prefWidth="90"/>
-                <TableColumn fx:id="fitPreferencesColumn" text="Fit Preferences" prefWidth="150"/>
-                <TableColumn fx:id="statusColumn" text="Status" prefWidth="80"/>
-            </columns>
-        </TableView>
+        <VBox style="-fx-padding: 0 32 0 32;" VBox.vgrow="ALWAYS">
+            <TableView fx:id="customerTable" styleClass="modern-table"
+                       VBox.vgrow="ALWAYS"
+                       style="-fx-background-radius: 16; -fx-background-color: white;">
+                <columns>
+                    <TableColumn fx:id="idColumn" text="#" prefWidth="40" sortable="false"
+                                 style="-fx-alignment: CENTER;"/>
+                    <TableColumn fx:id="nameColumn" text="Name" prefWidth="140"/>
+                    <TableColumn fx:id="phoneColumn" text="Phone" prefWidth="120"/>
+                    <TableColumn fx:id="waistColumn" text="Waist" prefWidth="70"/>
+                    <TableColumn fx:id="inseamColumn" text="Inseam" prefWidth="70"/>
+                    <TableColumn fx:id="hipColumn" text="Hip" prefWidth="70"/>
+                    <TableColumn fx:id="thighColumn" text="Thigh" prefWidth="70"/>
+                    <TableColumn fx:id="frontRiseColumn" text="Front Rise" prefWidth="80"/>
+                    <TableColumn fx:id="backRiseColumn" text="Back Rise" prefWidth="80"/>
+                    <TableColumn fx:id="fitPreferencesColumn" text="Fit Preferences" prefWidth="140"/>
+                    <TableColumn fx:id="statusColumn" text="Status" prefWidth="80"/>
+                </columns>
+            </TableView>
+        </VBox>
     </center>
 
-    <!-- ===================================================================
-         BOTTOM SECTION: Action Buttons
-         =================================================================== -->
+    <!-- Bottom Bar -->
     <bottom>
-        <HBox spacing="10" alignment="CENTER_LEFT"
-              style="-fx-padding: 12 15 12 15; -fx-border-color: -color-border-default; -fx-border-width: 1 0 0 0;">
-
-            <Button fx:id="addButton" text="Add Customer"
-                    prefWidth="130" onAction="#onAddCustomerClick"
-                    style="-fx-background-color: -color-accent-emphasis; -fx-text-fill: white;"/>
-
-            <Button fx:id="editButton" text="Edit"
-                    prefWidth="80" onAction="#onEditCustomerClick" disable="true"/>
-
-            <Button fx:id="deleteButton" text="Delete"
-                    prefWidth="80" onAction="#onDeleteCustomerClick" disable="true"
-                    style="-fx-background-color: -color-danger-emphasis; -fx-text-fill: white;"/>
-
+        <HBox spacing="12" alignment="CENTER_LEFT"
+              style="-fx-padding: 12 32 16 32; -fx-background-color: transparent;">
+            <Button fx:id="editButton" text="Edit" styleClass="btn-secondary"
+                    onAction="#onEditCustomerClick" disable="true"/>
+            <Button fx:id="deleteButton" text="Delete" styleClass="btn-danger"
+                    onAction="#onDeleteCustomerClick" disable="true"/>
             <Button fx:id="manageGarmentsButton" text="Manage Garments"
-                    prefWidth="140" onAction="#onManageGarmentsClick" disable="true"/>
-
+                    styleClass="btn-secondary"
+                    onAction="#onManageGarmentsClick" disable="true"/>
             <Region HBox.hgrow="ALWAYS"/>
-
             <Label fx:id="statusLabel" text="Ready"
-                   style="-fx-text-fill: -color-fg-subtle;"/>
+                   style="-fx-font-size: 13px; -fx-text-fill: #6B7280;"/>
         </HBox>
     </bottom>
 </BorderPane>

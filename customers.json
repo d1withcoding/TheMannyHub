@@ -50,5 +50,18 @@
         "hip": 56,
         "frontRise": 13,
         "status": "ACTIVE"
+    },
+    {
+        "inseam": 27,
+        "phone": "0543344234",
+        "thigh": 20,
+        "name": "Stephen Kwesi",
+        "fitPreferences": "Prefers Slim fit",
+        "waist": 25,
+        "backRise": 10,
+        "id": 5,
+        "hip": 32,
+        "frontRise": 10,
+        "status": "ACTIVE"
     }
 ]}

@@ -1,49 +1,61 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
 <BorderPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
-            fx:controller="com.example.themannyhub.controllers.GarmentWindowController">
+            fx:controller="com.example.themannyhub.controllers.GarmentWindowController"
+            stylesheets="@css/application.css"
+            style="-fx-background-color: #F8FAFC;">
 
+    <!-- Header -->
     <top>
-        <VBox spacing="12" style="-fx-padding: 15; -fx-border-color: -color-border-default; -fx-border-width: 0 0 1 0;">
-            <Label fx:id="titleLabel" text="Garments"
-                   style="-fx-font-size: 20px; -fx-font-weight: bold;"/>
-            <HBox spacing="10" alignment="CENTER_LEFT">
-                <Label text="Filter by Type:" style="-fx-min-width: 100; -fx-font-size: 12px;"/>
-                <ComboBox fx:id="typeFilterComboBox" prefWidth="180" onAction="#onTypeFilterChange"/>
-            </HBox>
-        </VBox>
+        <HBox styleClass="header" spacing="16">
+            <Label text="Garments" styleClass="header-title"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <ComboBox fx:id="customerFilterComboBox" prefWidth="220"
+                      styleClass="input-field"
+                      style="-fx-min-height: 48; -fx-padding: 0 16 0 16;"
+                      onAction="#onCustomerFilterChange"/>
+            <ComboBox fx:id="typeFilterComboBox" prefWidth="150"
+                      styleClass="input-field"
+                      style="-fx-min-height: 48; -fx-padding: 0 16 0 16;"
+                      onAction="#onTypeFilterChange"/>
+            <Button text="Add Garment" styleClass="btn-primary"
+                    onAction="#onAddGarmentClick"/>
+        </HBox>
     </top>
 
+    <!-- Table -->
     <center>
-        <TableView fx:id="garmentTable" style="-fx-padding: 10;">
-            <columns>
-                <TableColumn fx:id="idColumn" text="ID" prefWidth="50"/>
-                <TableColumn fx:id="typeColumn" text="Type" prefWidth="90"/>
-                <TableColumn fx:id="summaryColumn" text="Measurements" prefWidth="420"/>
-                <TableColumn fx:id="notesColumn" text="Notes" prefWidth="180"/>
-                <TableColumn fx:id="modifiedColumn" text="Last Modified" prefWidth="140"/>
-            </columns>
-        </TableView>
+        <VBox style="-fx-padding: 0 32 0 32;" VBox.vgrow="ALWAYS">
+            <TableView fx:id="garmentTable" styleClass="modern-table"
+                       VBox.vgrow="ALWAYS"
+                       style="-fx-background-radius: 16; -fx-background-color: white;">
+                <columns>
+                    <TableColumn fx:id="idColumn" text="#" prefWidth="40"
+                                 style="-fx-alignment: CENTER;"/>
+                    <TableColumn fx:id="customerColumn" text="Customer" prefWidth="180"/>
+                    <TableColumn fx:id="typeColumn" text="Type" prefWidth="100"/>
+                    <TableColumn fx:id="summaryColumn" text="Measurements" prefWidth="360"/>
+                    <TableColumn fx:id="notesColumn" text="Notes" prefWidth="200"/>
+                    <TableColumn fx:id="modifiedColumn" text="Last Modified" prefWidth="150"/>
+                </columns>
+            </TableView>
+        </VBox>
     </center>
 
+    <!-- Bottom Bar -->
     <bottom>
-        <HBox spacing="10" alignment="CENTER_LEFT"
-              style="-fx-padding: 12 15 12 15; -fx-border-color: -color-border-default; -fx-border-width: 1 0 0 0;">
-            <Button fx:id="addButton" text="Add Garment" prefWidth="130"
-                    onAction="#onAddGarmentClick"
-                    style="-fx-background-color: -color-accent-emphasis; -fx-text-fill: white;"/>
-            <Button fx:id="editButton" text="Edit" prefWidth="80"
+        <HBox spacing="12" alignment="CENTER_LEFT"
+              style="-fx-padding: 12 32 16 32; -fx-background-color: transparent;">
+            <Button fx:id="editButton" text="Edit" styleClass="btn-secondary"
                     onAction="#onEditGarmentClick" disable="true"/>
-            <Button fx:id="deleteButton" text="Delete" prefWidth="80"
-                    onAction="#onDeleteGarmentClick" disable="true"
-                    style="-fx-background-color: -color-danger-emphasis; -fx-text-fill: white;"/>
+            <Button fx:id="deleteButton" text="Delete" styleClass="btn-danger"
+                    onAction="#onDeleteGarmentClick" disable="true"/>
             <Region HBox.hgrow="ALWAYS"/>
             <Label fx:id="statusLabel" text="Ready"
-                   style="-fx-text-fill: -color-fg-subtle;"/>
+                   style="-fx-font-size: 13px; -fx-text-fill: #6B7280;"/>
         </HBox>
     </bottom>
 </BorderPane>

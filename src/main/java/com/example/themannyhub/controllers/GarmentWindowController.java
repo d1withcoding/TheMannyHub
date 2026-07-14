@@ -2,18 +2,16 @@ package com.example.themannyhub.controllers;
 
 import com.example.themannyhub.models.Customer;
 import com.example.themannyhub.models.Garment;
+import com.example.themannyhub.services.CustomerService;
 import com.example.themannyhub.services.GarmentService;
-import com.example.themannyhub.theme.ThemeManager;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Scene;
-import javafx.scene.control.*;
-import javafx.stage.Modality;
-import javafx.stage.Stage;
-
 import javafx.scene.Parent;
+import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
+
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
@@ -21,6 +19,7 @@ import java.util.Optional;
 public class GarmentWindowController {
 
     @FXML private Label titleLabel;
+    @FXML private ComboBox<String> customerFilterComboBox;
     @FXML private ComboBox<String> typeFilterComboBox;
     @FXML private TableView<Garment> garmentTable;
     @FXML private Label statusLabel;
@@ -29,44 +28,61 @@ public class GarmentWindowController {
     @FXML private Button deleteButton;
 
     @FXML private TableColumn<Garment, Integer> idColumn;
+    @FXML private TableColumn<Garment, String> customerColumn;
     @FXML private TableColumn<Garment, String> typeColumn;
     @FXML private TableColumn<Garment, String> summaryColumn;
     @FXML private TableColumn<Garment, String> notesColumn;
     @FXML private TableColumn<Garment, String> modifiedColumn;
 
     private GarmentService garmentService;
-    private Customer customer;
-    private final ObservableList<Garment> garmentList = FXCollections.observableArrayList();
-    // Add this field
+    private CustomerService customerService;
     private DashboardController parentDashboardController;
+    private final ObservableList<Garment> garmentList = FXCollections.observableArrayList();
 
-    // Add this method
-
-
-    public void initForCustomer(Customer customer, GarmentService garmentService) {
-        this.customer = customer;
-        this.garmentService = garmentService;
-        titleLabel.setText("Garments for " + customer.getName());
-        refreshTable();
+    public void setParentDashboardController(DashboardController controller) {
+        this.parentDashboardController = controller;
     }
 
     @FXML
     public void initialize() {
-        // Type filter options. "All" shows every garment for this customer.
+        garmentService = new GarmentService();
+        customerService = new CustomerService();
+
+        // Type filter
         typeFilterComboBox.setItems(FXCollections.observableArrayList(
                 "All", "TROUSERS", "SHIRT", "JACKET", "SUIT"));
         typeFilterComboBox.setValue("All");
 
-        // Use JavaFX property accessors that hit Garment's own getters.
-        idColumn.setCellValueFactory(c -> new javafx.beans.property.SimpleIntegerProperty(c.getValue().getId()).asObject());
-        typeColumn.setCellValueFactory(c -> new javafx.beans.property.SimpleStringProperty(c.getValue().getGarmentType()));
-        summaryColumn.setCellValueFactory(c -> new javafx.beans.property.SimpleStringProperty(c.getValue().getMeasurementSummary()));
-        notesColumn.setCellValueFactory(c -> new javafx.beans.property.SimpleStringProperty(
-                c.getValue().getNotes() == null ? "" : c.getValue().getNotes()));
-        modifiedColumn.setCellValueFactory(c -> new javafx.beans.property.SimpleStringProperty(
-                c.getValue().getDateLastModified() == null
-                        ? ""
-                        : c.getValue().getDateLastModified().toString()));
+        // Customer filter
+        List<Customer> customers = customerService.getAllCustomers();
+        ObservableList<String> customerNames = FXCollections.observableArrayList();
+        customerNames.add("All Customers");
+        for (Customer c : customers) {
+            customerNames.add(c.getDisplayName() + " (ID:" + c.getId() + ")");
+        }
+        customerFilterComboBox.setItems(customerNames);
+        customerFilterComboBox.setValue("All Customers");
+
+        // Table columns
+        idColumn.setCellValueFactory(cell ->
+                new javafx.beans.property.SimpleIntegerProperty(cell.getValue().getId()).asObject());
+        customerColumn.setCellValueFactory(cell -> {
+            int cid = cell.getValue().getCustomerId();
+            Customer c = customerService.getCustomerByID(cid);
+            return new javafx.beans.property.SimpleStringProperty(
+                    c != null ? c.getDisplayName() : "Unknown (ID:" + cid + ")");
+        });
+        typeColumn.setCellValueFactory(cell ->
+                new javafx.beans.property.SimpleStringProperty(cell.getValue().getGarmentType()));
+        summaryColumn.setCellValueFactory(cell ->
+                new javafx.beans.property.SimpleStringProperty(cell.getValue().getMeasurementSummary()));
+        notesColumn.setCellValueFactory(cell ->
+                new javafx.beans.property.SimpleStringProperty(
+                        cell.getValue().getNotes() == null ? "" : cell.getValue().getNotes()));
+        modifiedColumn.setCellValueFactory(cell ->
+                new javafx.beans.property.SimpleStringProperty(
+                        cell.getValue().getDateLastModified() == null ? ""
+                                : cell.getValue().getDateLastModified().toString()));
 
         garmentTable.setItems(garmentList);
 
@@ -78,6 +94,13 @@ public class GarmentWindowController {
             editButton.setDisable(!sel);
             deleteButton.setDisable(!sel);
         });
+
+        refreshTable();
+    }
+
+    @FXML
+    private void onCustomerFilterChange() {
+        refreshTable();
     }
 
     @FXML
@@ -87,13 +110,24 @@ public class GarmentWindowController {
 
     @FXML
     private void onAddGarmentClick() {
+        // Pick a customer first
+        List<Customer> customers = customerService.getAllCustomers();
+        if (customers.isEmpty()) {
+            showAlert(Alert.AlertType.INFORMATION, "No Customers",
+                    "Please add a customer first.");
+            return;
+        }
+
+        Customer selectedCustomer = showCustomerPicker(customers, "Select customer for new garment:");
+        if (selectedCustomer == null) return;
+
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(
                     "/com/example/themannyhub/GarmentDialog.fxml"));
             Parent dialogRoot = loader.load();
 
             GarmentDialogController controller = loader.getController();
-            controller.initForCreate(customer, garmentService);
+            controller.initForCreate(selectedCustomer, garmentService);
             controller.setOnCloseCallback(() -> {
                 if (parentDashboardController != null) {
                     parentDashboardController.hideModal();
@@ -105,7 +139,8 @@ public class GarmentWindowController {
                 parentDashboardController.showModal(dialogRoot);
             }
         } catch (IOException e) {
-            showAlert(Alert.AlertType.ERROR, "Error", "Could not open garment dialog: " + e.getMessage());
+            showAlert(Alert.AlertType.ERROR, "Error",
+                    "Could not open garment dialog: " + e.getMessage());
         }
     }
 
@@ -115,24 +150,25 @@ public class GarmentWindowController {
         if (selected == null) return;
 
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/themannyhub/GarmentDialog.fxml"));
-            Stage dialogStage = new Stage();
-            Scene dialogScene = new Scene(loader.load());
-            ThemeManager.apply(dialogScene);
-            dialogStage.setScene(dialogScene);
-            dialogStage.setTitle("Edit Garment");
-            dialogStage.initModality(Modality.WINDOW_MODAL);
-            dialogStage.initOwner(editButton.getScene().getWindow());
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(
+                    "/com/example/themannyhub/GarmentDialog.fxml"));
+            Parent dialogRoot = loader.load();
 
             GarmentDialogController controller = loader.getController();
             controller.initForEdit(selected, garmentService);
+            controller.setOnCloseCallback(() -> {
+                if (parentDashboardController != null) {
+                    parentDashboardController.hideModal();
+                    refreshTable();
+                }
+            });
 
-            dialogStage.showAndWait();
-            refreshTable();
+            if (parentDashboardController != null) {
+                parentDashboardController.showModal(dialogRoot);
+            }
         } catch (IOException e) {
-            showAlert(Alert.AlertType.ERROR, "Error", "Could not open the garment dialog: " + e.getMessage());
-        } catch (IllegalArgumentException e) {
-            showAlert(Alert.AlertType.ERROR, "Validation Error", e.getMessage());
+            showAlert(Alert.AlertType.ERROR, "Error",
+                    "Could not open garment dialog: " + e.getMessage());
         }
     }
 
@@ -144,7 +180,8 @@ public class GarmentWindowController {
         Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
         confirm.setTitle("Confirm Delete");
         confirm.setHeaderText("Delete Garment");
-        confirm.setContentText("Are you sure you want to delete this " + selected.getGarmentType() + "?");
+        confirm.setContentText("Are you sure you want to delete this "
+                + selected.getGarmentType() + "?");
 
         Optional<ButtonType> result = confirm.showAndWait();
         if (result.isPresent() && result.get() == ButtonType.OK) {
@@ -153,24 +190,66 @@ public class GarmentWindowController {
                 refreshTable();
                 statusLabel.setText("Garment deleted");
             } catch (IOException e) {
-                showAlert(Alert.AlertType.ERROR, "Error", "Could not save changes: " + e.getMessage());
-            } catch (IllegalArgumentException e) {
-                showAlert(Alert.AlertType.ERROR, "Error", e.getMessage());
+                showAlert(Alert.AlertType.ERROR, "Error",
+                        "Could not save changes: " + e.getMessage());
             }
         }
     }
 
     private void refreshTable() {
-        if (customer == null || garmentService == null) {
-            return;
+        List<Garment> allGarments = garmentService.getAllGarments();
+
+        // Filter by customer
+        String customerFilter = customerFilterComboBox.getValue();
+        if (customerFilter != null && !"All Customers".equals(customerFilter)) {
+            // Extract customer ID from string like "John Doe (1234567890) (ID:5)"
+            int idStart = customerFilter.lastIndexOf("(ID:") + 4;
+            int idEnd = customerFilter.lastIndexOf(")");
+            if (idStart > 3 && idEnd > idStart) {
+                int customerId = Integer.parseInt(customerFilter.substring(idStart, idEnd));
+                allGarments.removeIf(g -> g.getCustomerId() != customerId);
+            }
         }
-        List<Garment> garments = garmentService.getGarmentsForCustomer(customer.getId());
-        String filter = typeFilterComboBox.getValue();
-        if (filter != null && !"All".equalsIgnoreCase(filter)) {
-            garments.removeIf(g -> !g.getGarmentType().equalsIgnoreCase(filter));
+
+        // Filter by type
+        String typeFilter = typeFilterComboBox.getValue();
+        if (typeFilter != null && !"All".equalsIgnoreCase(typeFilter)) {
+            allGarments.removeIf(g -> !g.getGarmentType().equalsIgnoreCase(typeFilter));
         }
-        garmentList.setAll(garments);
-        statusLabel.setText("Showing " + garments.size() + " garment(s)");
+
+        garmentList.setAll(allGarments);
+        statusLabel.setText("Showing " + allGarments.size() + " garment(s)");
+    }
+
+    private Customer showCustomerPicker(List<Customer> customers, String header) {
+        Dialog<Customer> dialog = new Dialog<>();
+        dialog.setTitle("Select Customer");
+        dialog.setHeaderText(header);
+
+        ButtonType selectButton = new ButtonType("Select", ButtonBar.ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().addAll(selectButton, ButtonType.CANCEL);
+
+        ListView<Customer> listView = new ListView<>();
+        listView.getItems().addAll(customers);
+        listView.setCellFactory(lv -> new ListCell<Customer>() {
+            @Override
+            protected void updateItem(Customer c, boolean empty) {
+                super.updateItem(c, empty);
+                if (empty || c == null) {
+                    setText(null);
+                } else {
+                    setText(c.getDisplayName());
+                }
+            }
+        });
+        listView.setPrefHeight(200);
+
+        dialog.getDialogPane().setContent(listView);
+        dialog.setResultConverter(bt -> bt == selectButton
+                ? listView.getSelectionModel().getSelectedItem() : null);
+
+        Optional<Customer> result = dialog.showAndWait();
+        return result.orElse(null);
     }
 
     private void showAlert(Alert.AlertType type, String title, String message) {
@@ -179,8 +258,5 @@ public class GarmentWindowController {
         alert.setHeaderText(null);
         alert.setContentText(message);
         alert.showAndWait();
-    }
-    public void setParentDashboardController(DashboardController controller) {
-        this.parentDashboardController = controller;
     }
 }

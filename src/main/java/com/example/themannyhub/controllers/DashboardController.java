@@ -82,28 +82,24 @@ public class DashboardController {
 
     @FXML
     public void onGarmentsNavClick() {
-        // Option A: Show customer picker first
-        showCustomerPickerForGarments();
+        highlightNavButton(garmentsNavBtn);
+        loadGarmentManagement();
     }
 
+// DELETE showCustomerPickerForGarments() entirely - no longer needed
+
     private void highlightNavButton(Button active) {
-        String activeStyle = "-fx-background-color: -color-accent-emphasis; -fx-text-fill: white; " +
-                "-fx-font-size: 13px; -fx-padding: 9 14 9 14; -fx-background-radius: 6; " +
-                "-fx-alignment: CENTER_LEFT;";
-        String inactiveStyle = "-fx-background-color: transparent; -fx-font-size: 13px; " +
-                "-fx-padding: 9 14 9 14; -fx-background-radius: 6; " +
-                "-fx-alignment: CENTER_LEFT;";
-        dashboardNavBtn.setStyle(inactiveStyle);
-        customersNavBtn.setStyle(inactiveStyle);
-        garmentsNavBtn.setStyle(inactiveStyle);
-        active.setStyle(activeStyle);
+        dashboardNavBtn.getStyleClass().remove("sidebar-button-active");
+        customersNavBtn.getStyleClass().remove("sidebar-button-active");
+        garmentsNavBtn.getStyleClass().remove("sidebar-button-active");
+
+        active.getStyleClass().add("sidebar-button-active");
     }
 
     // ===== View Loading =====
 
     private void loadDashboardHome() {
         try {
-            // Reload the dashboard home view (search + recent customers + quick actions)
             FXMLLoader loader = new FXMLLoader(getClass().getResource(
                     "/com/example/themannyhub/DashboardHome.fxml"));
             Parent homeView = loader.load();
@@ -118,11 +114,14 @@ public class DashboardController {
                 homeController.setRecentCustomers(
                         all.subList(0, Math.min(8, all.size())));
             }
+
+            // Refresh metrics
+            homeController.refreshMetrics();
+
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
-
     private void loadCustomerManagement() {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(
@@ -137,17 +136,15 @@ public class DashboardController {
         }
     }
 
-    private void loadGarmentManagement(Customer customer) {
+    private void loadGarmentManagement() {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(
                     "/com/example/themannyhub/GarmentWindow.fxml"));
             Parent garmentView = loader.load();
             GarmentWindowController controller = loader.getController();
             controller.setParentDashboardController(this);
-            controller.initForCustomer(customer, garmentService);
 
             contentArea.getChildren().setAll(garmentView);
-            highlightNavButton(garmentsNavBtn);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -205,9 +202,10 @@ public class DashboardController {
             return null;
         });
 
-        Optional<Customer> result = customDialog.showAndWait();
-        result.ifPresent(this::loadGarmentManagement);
+
     }
+
+
 
     // ===== In-Window Modal Overlay =====
 
@@ -216,27 +214,43 @@ public class DashboardController {
      * The overlay dims the background and centers the dialog card.
      */
     public void showModal(Parent modalContent) {
-        // Wrap content in a styled card
-        VBox card = new VBox(modalContent);
-        card.setStyle("-fx-background-color: -color-bg-default; -fx-background-radius: 12; " +
-                "-fx-padding: 0; -fx-max-width: 550; -fx-max-height: 700; " +
-                "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.25), 20, 0, 0, 8);");
-        card.setMaxWidth(550);
-        card.setMaxHeight(700);
+        // Wrap content in a scrollable container
+        ScrollPane scrollPane = new ScrollPane(modalContent);
+        scrollPane.setFitToWidth(true);
+        scrollPane.setFitToHeight(true);
+        scrollPane.setStyle("-fx-background-color: transparent;");
+        scrollPane.setMaxWidth(550);
+        scrollPane.setMaxHeight(650);
 
-        StackPane.setAlignment(card, javafx.geometry.Pos.CENTER);
-        modalOverlay.getChildren().setAll(card);
-        modalOverlay.setVisible(true);
-        modalOverlay.setManaged(true);
+        VBox card = new VBox(scrollPane);
+        card.setStyle("-fx-background-color: -color-bg-default; -fx-background-radius: 12; " +
+                "-fx-padding: 20; " +
+                "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.25), 20, 0, 0, 8);");
+        card.setMaxWidth(570);
+        card.setMaxHeight(670);
+
+        // Create overlay
+        StackPane overlay = new StackPane(card);
+        overlay.setStyle("-fx-background-color: rgba(0,0,0,0.4);");
+        overlay.setAlignment(javafx.geometry.Pos.CENTER);
+        overlay.setPickOnBounds(true);
+
+        // Click on dark background to close
+        overlay.setOnMouseClicked(e -> {
+            if (e.getTarget() == overlay) {
+                hideModal();
+            }
+        });
+
+        // Add overlay on top of content
+        contentArea.getChildren().add(overlay);
     }
 
-    /**
-     * Hides the modal overlay.
-     */
     public void hideModal() {
-        modalOverlay.setVisible(false);
-        modalOverlay.setManaged(false);
-        modalOverlay.getChildren().clear();
+        // Remove the top layer (modal overlay) if present
+        if (contentArea.getChildren().size() > 1) {
+            contentArea.getChildren().remove(contentArea.getChildren().size() - 1);
+        }
     }
 
     // ===== Actions (called from sidebar and dashboard home) =====
