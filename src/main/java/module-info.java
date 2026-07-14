@@ -7,6 +7,9 @@ module com.example.themannyhub {
     // Required for JSON parsing
     requires org.json;
 
+    // AtlantaFX base theme (Cupertino Light, etc.)
+    requires atlantafx.base;
+
     // Export packages that JavaFX needs to access
     opens com.example.themannyhub.controllers to javafx.fxml;
     opens com.example.themannyhub.models to javafx.fxml;
@@ -19,5 +22,4 @@ module com.example.themannyhub {
     exports com.example.themannyhub.services;
     exports com.example.themannyhub.data;
     exports com.example.themannyhub.utils;
-
 }

@@ -1,10 +1,12 @@
 package com.example.themannyhub;
 
+import atlantafx.base.theme.CupertinoLight;
 import com.example.themannyhub.controllers.DashboardController;
 import com.example.themannyhub.controllers.LoginController;
 import com.example.themannyhub.services.AuthService;
 import com.example.themannyhub.services.CustomerService;
 import com.example.themannyhub.models.Customer;
+import com.example.themannyhub.theme.ThemeManager;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -19,6 +21,12 @@ public class Launcher extends Application {
 
     public static void main(String[] args) {
         Application.launch(args);
+    }
+
+    @Override
+    public void init() {
+        // Apply Cupertino Light theme globally so every Scene picks it up.
+        ThemeManager.applyToApplication();
     }
 
     @Override
@@ -50,6 +58,7 @@ public class Launcher extends Application {
             loginStage.setResizable(false);
 
             Scene loginScene = new Scene(loader.load(), 400, 350);
+            ThemeManager.apply(loginScene);
             loginStage.setScene(loginScene);
 
             loginStage.showAndWait();
@@ -81,6 +90,7 @@ public class Launcher extends Application {
 
             Stage dashboardStage = new Stage();
             Scene dashboardScene = new Scene(dashboardLoader.load(), 1000, 700);
+            ThemeManager.apply(dashboardScene);
             dashboardStage.setTitle("The Manny Hub - Dashboard");
             dashboardStage.setScene(dashboardScene);
             dashboardStage.setMinWidth(900);

@@ -4,6 +4,7 @@ import com.example.themannyhub.models.Customer;
 import com.example.themannyhub.models.Status;
 import com.example.themannyhub.services.CustomerService;
 import com.example.themannyhub.services.GarmentService;
+import com.example.themannyhub.theme.ThemeManager;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -112,7 +113,9 @@ public class MainWindowController {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/themannyhub/CustomerDialog.fxml"));
             Stage dialogStage = new Stage();
-            dialogStage.setScene(new Scene(loader.load()));
+            Scene dialogStageScene = new Scene(loader.load());
+            ThemeManager.apply(dialogStageScene);
+            dialogStage.setScene(dialogStageScene);
             dialogStage.setTitle("Add Customer");
             dialogStage.initModality(Modality.WINDOW_MODAL);
             dialogStage.initOwner(addButton.getScene().getWindow());
@@ -156,7 +159,9 @@ public class MainWindowController {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/themannyhub/CustomerDialog.fxml"));
             Stage dialogStage = new Stage();
-            dialogStage.setScene(new Scene(loader.load()));
+            Scene dialogStageScene = new Scene(loader.load());
+            ThemeManager.apply(dialogStageScene);
+            dialogStage.setScene(dialogStageScene);
             dialogStage.setTitle("Edit Customer");
             dialogStage.initModality(Modality.WINDOW_MODAL);
             dialogStage.initOwner(editButton.getScene().getWindow());
@@ -221,7 +226,9 @@ public class MainWindowController {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/themannyhub/GarmentWindow.fxml"));
             Stage garmentStage = new Stage();
-            garmentStage.setScene(new Scene(loader.load()));
+            Scene garmentStageScene = new Scene(loader.load());
+            ThemeManager.apply(garmentStageScene);
+            garmentStage.setScene(garmentStageScene);
             garmentStage.setTitle("Garments for " + selectedCustomer.getName());
             garmentStage.initModality(Modality.WINDOW_MODAL);
             garmentStage.initOwner(manageGarmentsButton.getScene().getWindow());

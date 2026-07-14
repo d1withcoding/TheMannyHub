@@ -3,6 +3,7 @@ package com.example.themannyhub.controllers;
 import com.example.themannyhub.models.Customer;
 import com.example.themannyhub.models.Garment;
 import com.example.themannyhub.services.GarmentService;
+import com.example.themannyhub.theme.ThemeManager;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -83,7 +84,9 @@ public class GarmentWindowController {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/themannyhub/GarmentDialog.fxml"));
             Stage dialogStage = new Stage();
-            dialogStage.setScene(new Scene(loader.load()));
+            Scene dialogScene = new Scene(loader.load());
+            ThemeManager.apply(dialogScene);
+            dialogStage.setScene(dialogScene);
             dialogStage.setTitle("Add Garment for " + customer.getName());
             dialogStage.initModality(Modality.WINDOW_MODAL);
             dialogStage.initOwner(addButton.getScene().getWindow());
@@ -108,7 +111,9 @@ public class GarmentWindowController {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/themannyhub/GarmentDialog.fxml"));
             Stage dialogStage = new Stage();
-            dialogStage.setScene(new Scene(loader.load()));
+            Scene dialogScene = new Scene(loader.load());
+            ThemeManager.apply(dialogScene);
+            dialogStage.setScene(dialogScene);
             dialogStage.setTitle("Edit Garment");
             dialogStage.initModality(Modality.WINDOW_MODAL);
             dialogStage.initOwner(editButton.getScene().getWindow());

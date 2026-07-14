@@ -4,6 +4,7 @@ import com.example.themannyhub.models.Customer;
 import com.example.themannyhub.models.Status;
 import com.example.themannyhub.services.AuthService;
 import com.example.themannyhub.services.CustomerService;
+import com.example.themannyhub.theme.ThemeManager;
 import javafx.animation.PauseTransition;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -186,7 +187,11 @@ public class DashboardController {
 
             Stage stage = new Stage();
             stage.setTitle("Edit Customer - " + customer.getName());
-            stage.setScene(new Scene(root));
+            Scene scene1 = new Scene(root);
+
+            ThemeManager.apply(scene1);
+
+            stage.setScene(scene1);
             stage.initModality(Modality.APPLICATION_MODAL);
             stage.showAndWait();
 
@@ -226,7 +231,11 @@ public class DashboardController {
 
             Stage stage = new Stage();
             stage.setTitle("Add New Customer");
-            stage.setScene(new Scene(root));
+            Scene scene2 = new Scene(root);
+
+            ThemeManager.apply(scene2);
+
+            stage.setScene(scene2);
             stage.initModality(Modality.APPLICATION_MODAL);
             stage.showAndWait();
 
@@ -246,7 +255,11 @@ public class DashboardController {
 
             Stage stage = new Stage();
             stage.setTitle("Add New Garment");
-            stage.setScene(new Scene(root));
+            Scene scene3 = new Scene(root);
+
+            ThemeManager.apply(scene3);
+
+            stage.setScene(scene3);
             stage.initModality(Modality.APPLICATION_MODAL);
             stage.show();
 
@@ -267,7 +280,11 @@ public class DashboardController {
 
             Stage stage = new Stage();
             stage.setTitle("Customer Management");
-            stage.setScene(new Scene(root, 1100, 600));
+            Scene scene4 = new Scene(root, 1100, 600);
+
+            ThemeManager.apply(scene4);
+
+            stage.setScene(scene4);
             stage.setMinWidth(800);
             stage.setMinHeight(400);
             stage.initModality(Modality.NONE);
@@ -287,7 +304,11 @@ public class DashboardController {
 
             Stage stage = new Stage();
             stage.setTitle("Garment Management");
-            stage.setScene(new Scene(root));
+            Scene scene5 = new Scene(root);
+
+            ThemeManager.apply(scene5);
+
+            stage.setScene(scene5);
             stage.show();
 
         } catch (IOException e) {
@@ -313,7 +334,9 @@ public class DashboardController {
                 loginStage.initModality(Modality.APPLICATION_MODAL);
                 loginStage.setTitle("Login - The Manny Hub");
                 loginStage.setResizable(false);
-                loginStage.setScene(new Scene(loginRoot, 400, 350));
+                Scene loginScene = new Scene(loginRoot, 400, 350);
+                ThemeManager.apply(loginScene);
+                loginStage.setScene(loginScene);
                 loginStage.showAndWait();
 
                 LoginController loginController = loginLoader.getController();

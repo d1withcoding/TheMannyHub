@@ -2,6 +2,7 @@ package com.example.themannyhub;
 
 import com.example.themannyhub.controllers.LoginController;
 import com.example.themannyhub.services.AuthService;
+import com.example.themannyhub.theme.ThemeManager;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -14,6 +15,12 @@ import java.io.IOException;
 public class HelloApplication extends Application {
 
     private AuthService authService;
+
+    @Override
+    public void init() {
+        // Apply the application-wide Cupertino Light theme before any Scene is created.
+        ThemeManager.applyToApplication();
+    }
 
     @Override
     public void start(Stage primaryStage) throws IOException {
@@ -35,7 +42,9 @@ public class HelloApplication extends Application {
         loginStage.initStyle(StageStyle.UNDECORATED); // No title bar
         loginStage.initModality(Modality.APPLICATION_MODAL);
         loginStage.setTitle("Login - The Manny Hub");
-        loginStage.setScene(new Scene(loader.load()));
+        Scene loginScene = new Scene(loader.load());
+        ThemeManager.apply(loginScene);
+        loginStage.setScene(loginScene);
         loginStage.setResizable(false);
 
         // Show and wait — blocks until login window closes
@@ -53,6 +62,7 @@ public class HelloApplication extends Application {
         FXMLLoader fxmlLoader = new FXMLLoader(
                 getClass().getResource("MainWindow.fxml"));
         Scene scene = new Scene(fxmlLoader.load(), 1000, 700);
+        ThemeManager.apply(scene);
         stage.setTitle("The Manny Hub - " +
                 (authService != null ? authService.getCurrentUser().getDisplayName() : ""));
         stage.setScene(scene);

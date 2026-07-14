@@ -1,0 +1,15 @@
+{"garments": [{
+    "notes": "",
+    "customerId": 2,
+    "id": 1,
+    "type": "SHIRT",
+    "measurements": {
+        "collarStyle": "SPREAD",
+        "chestWidth": 56,
+        "neckSize": 15,
+        "shirtLength": 28,
+        "sleeveStyle": "LONG",
+        "shoulderWidth": 22,
+        "sleeveLength": 26
+    }
+}]}
